@@ -1,0 +1,246 @@
+@extends('layouts.main')
+
+@section('content')
+<!--  BEGIN PAGE HEADER  -->
+<!-- <div class="page-header d-print-none" aria-label="Page header">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">{{ $title }}</h2>
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- END PAGE HEADER  -->
+<!-- BEGIN PAGE BODY  -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row w-full">
+                            <div class="col">
+                                <h3 class="card-title mb-0">Employee</h3>
+                                <p class="text-secondary m-0">Table description.</p>
+                            </div>
+
+                            <div class="col-md-auto col-sm-12">
+                                <div class="ms-auto d-flex flex-wrap btn-list">
+                                    <div class="input-group input-group-flat w-auto">
+                                        <span class="input-group-text">
+                                            <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+                                                <path d="M21 21l-6 -6"></path>
+                                            </svg>
+                                        </span>
+                                        <input placeholder="Search Here..." id="search-input" type="text" class="form-control" autocomplete="off">
+                                    </div>
+                                    <button type="button" onclick="reloadTable()" class="btn btn-icon" aria-label="Button">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pointer-search">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M14.778 12.222l3.113 -2.09a1.2 1.2 0 0 0 -.309 -2.228l-13.582 -3.904l3.904 13.563a1.2 1.2 0 0 0 2.228 .308l2.09 -3.093" />
+                                            <path d="M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                            <path d="M20.2 20.2l1.8 1.8" />
+                                        </svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <a href="#" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Export</a>
+                                        <div class="dropdown-menu" style="">
+                                            <a class="dropdown-item" href="#">CSV</a>
+                                            <a class="dropdown-item" href="#">PDF</a>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create </button>
+                                    <button disabled id="btn-edit" class="btn btn-outline-success" data-bs-toggle="offcanvas" type="button" onclick="Crud('edit','')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Edit </button>
+                                    <button disabled id="btn-delete" class="btn btn-outline-danger" data-bs-toggle="offcanvas" type="button" onclick="Crud('delete','')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Delete </button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Your position content here -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div id="tree-position"></div>
+                            </div>
+                            <div class="col-md-8">
+                                <div id="position-master"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+@include('coredata.partials.crud-position');
+<!-- END PAGE BODY  -->
+@push('scripts')
+<script>
+    $('#tree-position').jstree({
+        core: {
+            data: {
+                url: '{{ route("coredata.positionTree") }}',
+                dataType: 'json'
+            }
+        },
+        plugins: ["types"], // Aktifkan plugin types
+        types: {
+            "default": {
+                "icon": "ti ti-users" // Icon default (contoh pakai Tabler Icons)
+            },
+        }
+
+    });
+
+    // Inisialisasi jsTree (Hanya satu kali saja!)
+    $('#tree-position')
+        .on('loaded.jstree', function() {
+            $(this).jstree('open_all');
+        })
+        .on('changed.jstree', function(e, data) {
+            // Cek apakah ada node yang dipilih
+            if (data.selected.length) {
+                var selectedNode = data.instance.get_node(data.selected[0]);
+                var nodeID = selectedNode.id; // Ambil ID dari database (primary key)
+
+                console.log("ID yang dipilih: " + nodeID);
+
+                // 1. Aktifkan button (hapus attribute disabled)
+                $('#btn-edit').removeAttr('disabled');
+                $('#btn-delete').removeClass('disabled').prop('disabled', false);
+
+                $('#btn-edit').attr('onclick', `Crud('update', '${nodeID}')`);
+                $('#btn-delete').attr('onclick', `Crud('delete', '${nodeID}')`);
+
+                // 2. Simpan ID ke input hidden atau variable global (opsional)
+                $('#selected-position-id').val(nodeID);
+
+                reloadTable(); // Reload table dengan parameter ID posisi yang dipilih
+            } else {
+                // Jika tidak ada yang dipilih, matikan lagi button-nya
+                $('.btn-action').prop('disabled', true);
+            }
+        })
+        .jstree({
+            core: {
+                data: {
+                    url: '{{ route("coredata.positionTree") }}',
+                    dataType: 'json'
+                },
+                multiple: false // Set false jika hanya boleh pilih satu jabatan
+            },
+            plugins: ["types"],
+            types: {
+                "default": {
+                    "icon": "ti ti-users"
+                }
+            }
+        });
+
+
+    var table = new Tabulator("#position-master", {
+        ajaxURL: "{{ route('coredata.getPositionEmployee') }}", // endpoint Laravel
+        ajaxConfig: "GET",
+        // layout: "fitData",
+        layout: "fitColumns",
+        responsiveLayout: false,
+        pagination: "local",
+        height: "450px",
+        responsiveLayout: "collapse",
+        responsiveLayoutCollapseStartOpen: false,
+        // pagination: "remote",
+        paginationSize: 10,
+        paginationSizeSelector: [10, 25, 50, 100],
+        ajaxLoader: function() {
+            return `
+            <div class="custom-loader">
+                <div class="spinner"></div>
+                <div class="text">Loading data...</div>
+            </div>
+        `;
+        },
+        columns: [{
+                title: "Photo",
+                field: "photo",
+                width: 100,
+                hozAlign: "center",
+                formatter: function(cell) {
+                    let row = cell.getRow().getData();
+                    let name = row.employee_name || "-";
+                    let photo = row.photo;
+                    let fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+                    let image = photo || fallback;
+                    return `
+                    <div class="">
+                        <span class="avatar avatar-2 me-2"
+                            style="background-image: url('${image}')"
+                            onerror="this.style.backgroundImage='url(${fallback})'">
+                        </span>
+                    </div>`;
+                }
+            },
+            {
+                title: "Employee Name",
+                field: "employee_name",
+            },
+            {
+                title: "Employee Code",
+                field: "employee_code",
+            },
+            {
+                title: "Position",
+                field: "position_name",
+            },
+            {
+                title: "Created At",
+                field: "created_at",
+                formatter: "datetime",
+                formatterParams: {
+                    inputFormat: "yyyy-MM-dd HH:mm:ss", // sesuai format dari Laravel
+                    outputFormat: "dd MMM yyyy HH:mm", // tampilan yang diinginkan
+                    invalidPlaceholder: "-"
+                },
+                hozAlign: "center"
+            }
+        ],
+    });
+
+    function actionFormatter(cell) {
+        return `<a class="btn btn-sm btn-outline-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+        </a>
+        <a class="btn btn-sm btn-outline-danger">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </a>
+        `;
+    }
+
+    function reloadTable() {
+        const search = document.getElementById("search-input").value;
+
+        table.setData("{{ route('coredata.getPositionEmployee') }}", {
+            search: search,
+            position_id: $('#selected-position-id').val() // Kirim ID posisi yang dipilih sebagai parameter
+        });
+    }
+</script>
+@endpush
+@endsection

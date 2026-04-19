@@ -1,0 +1,200 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap");
+body {
+    margin: 0;
+    background: #f4f6fb;
+    font-family: "DM Sans", sans-serif;
+}
+.tabulator {
+    border: 1px solid #e5e7eb !important;
+}
+.tabulator {
+    font-family: "DM Sans", sans-serif !important;
+    font-size: 0.875rem !important;
+    border: none !important;
+    background: #fff !important;
+}
+.tabulator .tabulator-header {
+    background: #f8fafc !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+.tabulator .tabulator-header .tabulator-col {
+    background: #f8fafc !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 10px 12px !important;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.07em !important;
+    text-transform: uppercase !important;
+    color: #64748b !important;
+}
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
+    background: #dbeafe !important;
+}
+.tabulator .tabulator-row {
+    background: #fff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    transition: background 0.12s !important;
+    min-height: 10px !important; /* default sekitar 40-48 */
+}
+.tabulator .tabulator-row:hover {
+    background: #eff6ff !important;
+}
+/* .tabulator .tabulator-row.tabulator-row-even {
+    background: #f8fafc !important;
+}
+.tabulator .tabulator-row.tabulator-row-even:hover {
+    background: #eff6ff !important;
+} */
+.tabulator .tabulator-row .tabulator-cell {
+    /* padding: 10px 12px !important; */
+    padding: 4px 8px !important; /* kecilin padding */
+    border-right: 1px solid #f1f5f9 !important;
+    color: #334155 !important;
+}
+.tabulator .tabulator-footer {
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    padding: 8px 10px !important;
+    font-family: "DM Sans", sans-serif !important;
+}
+.tabulator .tabulator-footer .tabulator-page {
+    font-family: "DM Sans", sans-serif !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 3px 10px !important;
+    margin: 0 2px !important;
+    background: #fff !important;
+    transition: all 0.15s !important;
+}
+.tabulator .tabulator-footer .tabulator-page:hover {
+    border-color: #206bc4 !important;
+    color: #1a56a0 !important;
+    background: #dbeafe !important;
+}
+.tabulator .tabulator-footer .tabulator-page.active {
+    background: #206bc4 !important;
+    color: #fff !important;
+    border-color: #206bc4 !important;
+}
+.tabulator .tabulator-footer .tabulator-page-size {
+    font-family: "DM Sans", sans-serif !important;
+    font-size: 0.82rem !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    padding: 4px 8px !important;
+    color: #334155 !important;
+    background: #fff !important;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-col-sorter svg {
+    fill: #cbd5e1 !important;
+}
+.tabulator
+    .tabulator-header
+    .tabulator-col[aria-sort="ascending"]
+    .tabulator-col-sorter
+    svg,
+.tabulator
+    .tabulator-header
+    .tabulator-col[aria-sort="descending"]
+    .tabulator-col-sorter
+    svg {
+    fill: #206bc4 !important;
+}
+.tabulator
+    .tabulator-header
+    .tabulator-col[aria-sort="ascending"]
+    .tabulator-col-title,
+.tabulator
+    .tabulator-header
+    .tabulator-col[aria-sort="descending"]
+    .tabulator-col-title {
+    color: #1a56a0 !important;
+}
+
+.tabulator .tabulator-alert {
+    background: rgba(255, 255, 255, 0.8) !important ; /* lebih clean */
+}
+
+.tabulator .tabulator-alert-msg {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.tabulator .tabulator-alert-msg::before {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 100;
+    color: #333;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* CUSTOM NAVBAR */
+.navbar-expand-md .nav-item.active .nav-link {
+    color: #206bc4 !important;
+    border-bottom-color: #206bc4 !important;
+}
+/*  */
+
+/* CUSTOM LOADER */
+.custom-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(2px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.text {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+/*  */
+
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+
+.form-control:focus {
+    border-color: #0d59e6 !important; /* Ganti dengan warna hijau atau warna pilihanmu */
+    outline: 0;
+    box-shadow: 0 0 0 0rem rgba(47, 179, 68, 0.25); /* Efek blur di pinggir */
+}
