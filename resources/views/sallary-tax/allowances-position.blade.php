@@ -56,8 +56,8 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <!-- Your education content here -->
-                    <div id="education-master"></div>
+                    <!-- Your allowances content here -->
+                    <div class="grid-tables-tabulator" id="allowances-master"></div>
                 </div>
             </div>
         </div>
@@ -67,47 +67,129 @@
 <!-- END PAGE BODY  -->
 @push('scripts')
 <script>
-    var table = new Tabulator("#education-master", {
-        ajaxURL: "{{ route('coredata.getEducationData') }}", // endpoint Laravel
+    var table = new Tabulator("#allowances-master", {
+        ajaxURL: "{{ route('sallaryTax.getAllowancePositionData') }}",
         ajaxConfig: "GET",
-        layout: "fitColumns",
-        responsiveLayout: "hide",
+
+        // 🔥 layout fix (penting)
+        layout: "fitData",
+        responsiveLayout: false, // disable hide/collapse → pakai scroll
+        height: "450px",
+        // 🔥 pagination
         pagination: "local",
-        responsiveLayout: "collapse",
-        responsiveLayoutCollapseStartOpen: false,
-        // pagination: "remote",
         paginationSize: 10,
         paginationSizeSelector: [10, 25, 50, 100],
+
+        // 🔥 ajax param (filter support)
+        ajaxParams: {
+            search: "",
+        },
+
+        // 🔥 default column behavior
+        columnDefaults: {
+            resizable: true,
+            headerSort: true,
+            vertAlign: "middle",
+        },
+
         columns: [{
                 title: "ID",
                 field: "id",
-                width: 150
+                visible: false
+            }, {
+                title: "Position Name",
+                field: "position_name",
             },
             {
-                title: "Education Name",
-                field: "education_name",
+                title: "Position ID",
+                field: "position_id",
+                visible: false
+            },
+            {
+                title: "Grade Name",
+                field: "grade_name",
+            },
+            {
+                title: "Grade ID",
+                field: "grade_id",
+                visible: false
+            },
+            {
+                title: "Working Name",
+                field: "working_name",
+            },
+            {
+                title: "Working ID",
+                field: "working_id",
+                visible: false
+            },
+            {
+                title: "Grade Name",
+                field: "grade_id",
+                visible: false
+            },
+            {
+                title: "Start Date",
+                field: "start_date",
+                formatter: "date",
+                formatterParams: {
+                    inputFormat: "yyyy-MM-dd",
+                    outputFormat: "dd MMM yyyy",
+                    invalidPlaceholder: "-"
+                },
+                hozAlign: "center"
+            },
+            {
+                title: "End Date",
+                field: "end_date",
+                formatter: "date",
+                formatterParams: {
+                    inputFormat: "yyyy-MM-dd",
+                    outputFormat: "dd MMM yyyy",
+                    invalidPlaceholder: "-"
+                },
+                hozAlign: "center"
+            },
+            {
+                title: "Amount",
+                field: "amount",
+                hozAlign: "left",
+                formatter: "money",
+                formatterParams: {
+                    decimal: ".",
+                    thousand: ",",
+                    symbol: "Rp ",
+                    precision: 0,
+                },
+            }, {
+                title: "Daily",
+                field: "is_daily",
+                hozAlign: "center",
+                formatter: "tickCross",
             },
             {
                 title: "Created At",
                 field: "created_at",
                 formatter: "datetime",
                 formatterParams: {
-                    inputFormat: "yyyy-MM-dd HH:mm:ss", // sesuai format dari Laravel
-                    outputFormat: "dd MMM yyyy HH:mm", // tampilan yang diinginkan
+                    inputFormat: "yyyy-MM-dd HH:mm:ss",
+                    outputFormat: "dd MMM yyyy HH:mm",
                     invalidPlaceholder: "-"
                 },
                 hozAlign: "center"
-            }, {
+            },
+            {
                 title: "Action",
                 formatter: actionFormatter,
-                width: 100,
+                width: 180,
                 hozAlign: "center",
+                frozen: true, // 🔥 freeze kanan
             }
         ],
     });
 
     function actionFormatter(cell) {
-        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().id}')" class="btn btn-sm btn-outline-primary">
+        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().id}')" class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -122,15 +204,16 @@
         `;
     }
 
+
+
     function reloadTable() {
         const search = document.getElementById("search-input").value;
-
-        table.setData("{{ route('coredata.getEducationData') }}", {
+        table.setData("{{ route('sallaryTax.getAllowancePositionData') }}", {
             search: search
         });
     }
 </script>
 @endpush
 
-@include('coredata.partials.crud-education');
+@include('sallary-tax.partials.crud-allowances-position');
 @endsection

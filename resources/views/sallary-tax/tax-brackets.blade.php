@@ -50,7 +50,7 @@
                                         <a class="dropdown-item" href="#">PDF</a>
                                     </div>
                                 </div>
-                                <a href="#" class="btn btn-0"> Create </a>
+                                <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create </button>
                             </div>
                         </div>
                     </div>
@@ -83,15 +83,6 @@
         // 🔥 ajax param (filter support)
         ajaxParams: {
             search: "",
-        },
-
-        // 🔥 loader
-        ajaxLoader: function() {
-            return `
-        <div class="custom-loader">
-            <div class="spinner"></div>
-            <div class="text">Loading data...</div>
-        </div>`;
         },
         columns: [{
                 title: "No",
@@ -172,44 +163,35 @@
                 width: 100,
                 freeze: true,
                 hozAlign: "center",
-                cellClick: function(e, cell) {
-                    const row = cell.getRow().getData();
-
-                    if (e.target.classList.contains("btn-edit")) {
-                        console.log("Edit:", row);
-                    }
-
-                    if (e.target.classList.contains("btn-delete")) {
-                        console.log("Delete:", row);
-                    }
-                }
             }
         ],
     });
 
     function actionFormatter(cell) {
-        return `<a class="btn btn-sm btn-outline-primary">
+        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().id}')" class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
-        </a>
-        <a class="btn btn-sm btn-outline-danger">
+        </button>
+        <button type="button" onclick="Crud('delete', '${cell.getRow().getData().id}')" class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-        </a>
+        </button>
         `;
     }
 
     function reloadTable() {
         const search = document.getElementById("search-input").value;
 
-        table.setData("{{ route('coredata.getEducationData') }}", {
+        table.setData("{{ route('sallaryTax.getTaxBracketsData') }}", {
             search: search
         });
     }
 </script>
 @endpush
+
+@include('sallary-tax.partials.crud-tax-brackets');
 @endsection

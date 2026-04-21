@@ -198,3 +198,7 @@ body {
     outline: 0;
     box-shadow: 0 0 0 0rem rgba(47, 179, 68, 0.25); /* Efek blur di pinggir */
 }
+
+.offcanvas.offcanvas-end {
+    width: 550px !important;
+}

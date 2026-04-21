@@ -23,10 +23,10 @@ class SallaryTaxController extends Controller
                 'id',
                 'allowance_name',
                 'allowance_code',
-                'daily',
-                'is_tax',
                 'type',
                 'calc_for',
+                'daily',
+                'is_tax',
                 'is_actived',
                 'is_gross',
                 'is_membership',
@@ -42,7 +42,187 @@ class SallaryTaxController extends Controller
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }
+
+    public function CrudAllowances(Request $request)
+    {
+        // 1. Validasi dilakukan di awal (sebelum Transaction)
+        // Supaya jika gagal, Laravel otomatis mengembalikan pesan error 422
+        $rules = [
+            'action'        => 'required|in:insert,update,delete,create',
+            // 'id'            => $request->action == 'create' ? 'required|unique:mst_allowance_component,id' : 'required',
+            'allowance_name'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'allowance_code'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'daily'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'is_tax'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'type'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'calc_for'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'is_actived'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'is_gross'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'is_membership'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // 2. Siapkan data (Hanya untuk insert & update)
+        $data = [
+            'allowance_name' => $request->allowance_name,
+            'allowance_code' => $request->allowance_code,
+            'daily' => $request->daily,
+            'is_tax' => $request->is_tax,
+            'type' => $request->type,
+            'calc_for' => $request->calc_for,
+            'is_actived' => $request->is_actived,
+            'is_gross' => $request->is_gross,
+            'is_membership' => $request->is_membership,
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    // $data['id'] = $request->id;
+                    $data['created_at'] = now();
+                    DB::table('mst_allowance_component')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_allowance_component')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    // Tambahkan pengecekan: Apakah posisi ini punya bawahan (children)?
+                    // $hasChildren = DB::table('mst_employee_education')->where('education_id', $request->id)->exists();
+                    // if ($hasChildren) {
+                    //     throw new \Exception('Gagal menghapus! Posisi ini masih memiliki bawahan.');
+                    // }
+
+                    DB::table('mst_allowance_component')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     // end of Master Data - Allowances
+
+
+    // Master Data - Allowance Position
+    public function allowancePosition()
+    {
+        $data = [
+            'title' => 'Allowance Position',
+        ];
+        return view('sallary-tax.allowances-position', $data);
+    }
+
+    public function getAllowancePositionData(Request $request)
+    {
+        $data = DB::table('vw_allowance_position as a')
+            ->select(
+                'a.id',
+                'a.allowance_id',
+                'a.allowance_name',
+                'a.position_id',
+                'a.position_name',
+                'a.grade_id',
+                'a.grade_name',
+                'a.working_id',
+                'a.working_name',
+                'a.education_id',
+                'a.education_name',
+                'a.amount',
+                'a.start_date',
+                'a.is_daily',
+                'a.end_date',
+                'a.created_at',
+                'a.created_by',
+                'a.updated_at',
+                'a.updated_by'
+            );
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where(function ($query) use ($request) {
+                $query->where('a.allowance_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('a.position_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('a.education_name', 'like', '%' . $request->search . '%');
+            });
+        }
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+
+    public function CrudAllowancePosition(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'position_id' => $request->action != 'delete' ? 'required|exists:mst_position,id' : 'nullable',
+            'grade_id' => $request->action != 'delete' ? 'required|exists:mst_grade,id' : 'nullable',
+            'working_id' => $request->action != 'delete' ? 'required|exists:mst_working_status,id' : 'nullable',
+            'education_id' => $request->action != 'delete' ? 'required|exists:mst_education,id' : 'nullable',
+            'allowance_id' => $request->action != 'delete' ? 'required|exists:mst_allowance_component,id' : 'nullable',
+            'amount' => $request->action != 'delete' ? 'required|numeric|min:0' : 'nullable',
+            'start_date' => $request->action != 'delete' ? 'required|date' : 'nullable',
+            // 'end_date' => $request->action != 'delete' ? 'required|date|after:start_date' : 'nullable',
+            // Tambahkan validasi untuk field lainnya sesuai kebutuhan
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'position_id' => $request->position_id,
+            'grade_id' => $request->grade_id,
+            'working_id' => $request->working_id,
+            'education_id' => $request->education_id,
+            'allowance_id' => $request->allowance_id,
+            'amount' => $request->amount,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'is_daily' => $request->is_daily ?? 0,
+            'created_by'    => auth()->id() ?? 'system',
+            // Tambahkan field lainnya sesuai kebutuhan
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['id'] = $request->id;
+                    $data['created_at'] = now();
+                    DB::table('mst_allowance_position')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_allowance_position')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_allowance_position')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
 
 
     //Master Data - Pay Periods
@@ -75,6 +255,61 @@ class SallaryTaxController extends Controller
         }
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
+    }
+
+    public function CrudPayPeriods(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'period_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'start_date' => $request->action != 'delete' ? 'required|date' : 'nullable',
+            'end_date' => $request->action != 'delete' ? 'required|date|after:start_date' : 'nullable',
+            'pay_date' => $request->action != 'delete' ? 'required|date|after:end_date' : 'nullable',
+            // Tambahkan validasi untuk field lainnya sesuai kebutuhan
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'period_name' => $request->period_name,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'pay_date' => $request->pay_date,
+            'is_closed' => $request->is_closed ?? 0,
+            'created_by'    => auth()->id() ?? 'system',
+            // Tambahkan field lainnya sesuai kebutuhan
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['period_id'] = $request->period_id;
+                    $data['created_at'] = now();
+                    DB::table('payroll_period')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('payroll_period')->where('period_id', $request->period_id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('payroll_period')->where('period_id', $request->period_id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
     // End of Master Data - Pay Periods
 
@@ -109,6 +344,60 @@ class SallaryTaxController extends Controller
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }
+
+    public function CrudTaxPTKP(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'ptkp_code' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'description' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'amount' => $request->action != 'delete' ? 'required|numeric|min:0' : 'nullable',
+            'effective_date' => $request->action != 'delete' ? 'required|date' : 'nullable',
+            // 'end_date' => $request->action != 'delete' ? 'required|date|after:effective_date' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'ptkp_code' => $request->ptkp_code,
+            'description' => $request->description,
+            'amount' => $request->amount,
+            'effective_date' => $request->effective_date,
+            'end_date' => $request->end_date,
+            'created_by'    => auth()->id() ?? 'system',
+            // Tambahkan field lainnya sesuai kebutuhan
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_tax_ptkp')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_tax_ptkp')->where('ptkp_code', $request->ptkp_code)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_tax_ptkp')->where('ptkp_code', $request->ptkp_code)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
     // End of Master Data - Tax PTKP
 
     // Master Data - Tax Ter
@@ -129,6 +418,7 @@ class SallaryTaxController extends Controller
                 'max_salary',
                 'rate',
                 'effective_date',
+                'end_date',
                 'created_at',
                 'created_by',
                 'updated_at',
@@ -141,6 +431,65 @@ class SallaryTaxController extends Controller
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }
+
+    public function CrudTaxTER(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'ptkp_code' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'min_salary' => $request->action != 'delete' ? 'required|numeric|min:0' : 'nullable',
+            'max_salary' => $request->action != 'delete' ? 'required|numeric|min:0|gte:min_salary' : 'nullable',
+            'rate' => $request->action != 'delete' ? 'required|numeric|min:0|max:100' : 'nullable',
+            'effective_date' => $request->action != 'delete' ? 'required|date' : 'nullable',
+            'end_date' => $request->action != 'delete' ? 'date|after:effective_date' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'ptkp_code' => $request->ptkp_code,
+            'min_salary' => $request->min_salary,
+            'max_salary' => $request->max_salary,
+            'rate' => $request->rate,
+            'effective_date' => $request->effective_date,
+            'end_date' => $request->end_date,
+            'created_by'    => auth()->id() ?? 'system',
+            // Tambahkan field lainnya sesuai kebutuhan
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['id'] = $request->id;
+                    DB::table('mst_tax_ter')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_tax_ter')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_tax_ter')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+
     // End of Master Data - Tax Ter
 
     // Master Data - Tax Brackets
@@ -174,6 +523,61 @@ class SallaryTaxController extends Controller
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }
+
+    public function CrudTaxBrackets(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'min_amount' => $request->action != 'delete' ? 'required|numeric|min:0' : 'nullable',
+            'max_amount' => $request->action != 'delete' ? 'required|numeric|min:0|gte:min_amount' : 'nullable',
+            'rate' => $request->action != 'delete' ? 'required|numeric|min:0|max:100' : 'nullable',
+            'effective_date' => $request->action != 'delete' ? 'required|date' : 'nullable',
+            'end_date' => $request->action != 'delete' ? 'date|after:effective_date' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'min_amount' => $request->min_amount,
+            'max_amount' => $request->max_amount,
+            'rate' => $request->rate,
+            'effective_date' => $request->effective_date,
+            'end_date' => $request->end_date,
+            'created_by'    => auth()->id() ?? 'system',
+            // Tambahkan field lainnya sesuai kebutuhan
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['id'] = $request->id;
+                    DB::table('mst_tax_bracket')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_tax_bracket')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_tax_bracket')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
     // End of Master Data - Tax Brackets
 
     // Master Data - Tax Settings
@@ -205,6 +609,60 @@ class SallaryTaxController extends Controller
         }
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
+    }
+
+    public function CrudTaxSettings(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'config_code' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'value' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'description' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'effective_date' => $request->action != 'delete' ? 'required|date' : 'nullable',
+            // 'end_date' => $request->action != 'delete' ? 'required|date|after:effective_date' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'config_code' => $request->config_code,
+            'value' => $request->value,
+            'description' => $request->description,
+            'effective_date' => $request->effective_date,
+            'end_date' => $request->end_date,
+            'created_by'    => auth()->id() ?? 'system',
+            // Tambahkan field lainnya sesuai kebutuhan
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_tax_config')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_tax_config')->where('config_code', $request->config_code)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_tax_config')->where('config_code', $request->config_code)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 
     // End of Master Data - Tax Settings

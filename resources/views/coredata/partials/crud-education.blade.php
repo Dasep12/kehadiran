@@ -1,7 +1,7 @@
 <div class="offcanvas offcanvas-end" id="offcanvasEnd">
     <form id="form-crud" method="POST" action="">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasEndLabel">Crud Position</h5>
+            <h5 class="offcanvas-title" id="offcanvasEndLabel">Crud Education</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -13,26 +13,12 @@
                     </div>
                 </div>
                 <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Position Name</label>
+                    <label class="col-3 col-form-label required">Education Name</label>
                     <div class="col">
-                        <input type="text" name="position_name" id="position_name" class="form-control" aria-describedby="positionHelp" placeholder="Enter position name">
+                        <input type="text" name="education_name" id="education_name" class="form-control" aria-describedby="educationHelp" placeholder="Enter education name">
                     </div>
                 </div>
-                <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Level</label>
-                    <div class="col">
-                        <input type="number" name="level" id="level" class="form-control" aria-describedby="levelHelp" placeholder="Enter level">
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Parent</label>
-                    <div class="col">
-                        <select name="parent_id" id="parent_id" class="form-control" aria-describedby="parentHelp" placeholder="Enter parent position">
-                            <option value="">Select Parent Position</option>
-                            <!-- Options will be populated dynamically -->
-                        </select>
-                    </div>
-                </div>
+
 
                 <div class="text-end">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="offcanvas" aria-label="Close">
@@ -55,10 +41,6 @@
 
     </form>
 
-
-
-    <!-- Menyimpan ID posisi yang dipilih -->
-    <input type="text" hidden id="selected-position-id" value="">
     <!-- Menyimpan aksi CRUD saat ini -->
     <input type="text" hidden id="crud-action" value="">
     <div id="Crud-ErrorInfo"></div>
@@ -68,26 +50,31 @@
 <script>
     function Crud(action, id) {
         // Reset state form setiap kali buka
+        document.getElementById('form-crud').reset();
         $('#form-crud').find('input, select').attr('readonly', false).attr('disabled', false);
         $('#id').attr('readonly', false); // ID biasanya selalu readonly
 
         $('#crud-action').val(action);
-        $('#selected-position-id').val(id ? id : '');
         $('#Crud-ErrorInfo').html(''); // Reset error info
+        $('#offcanvasEnd').offcanvas('show');
+        if (id !== '*') {
+            let data = table.getRow(id).getData();
+            $('#id').val(data.id);
+            $('#education_name').val(data.education_name);
+        }
+
         switch (action) {
             case 'create':
-                $('#form-crud')[0].reset();
-                $('#offcanvasEndLabel').text('Create Position');
-                $('#parent_id').empty().append('<option value="">Select Parent Position</option>');
+                $('#offcanvasEndLabel').text('Create Education');
                 break;
 
             case 'update':
-                $('#offcanvasEndLabel').text('Edit Position');
-                loadPositionDetail(id);
+                $('#id').attr('readonly', true); // ID tidak bisa diubah saat update
+                $('#offcanvasEndLabel').text('Edit Education');
                 break;
 
             case 'delete':
-                $('#offcanvasEndLabel').text('Delete Position');
+                $('#offcanvasEndLabel').text('Delete Education');
                 $('#Crud-ErrorInfo').html(`<div class="col-md-12 p-1">
                     <div class="alert alert-important alert-warning alert-dismissible" role="alert">
                         <div class="alert-icon">
@@ -103,7 +90,6 @@
                         </div>
                     </div>
                 </div>`);
-                loadPositionDetail(id);
                 // Matikan semua input untuk konfirmasi hapus
                 $('#form-crud input').attr('readonly', true);
                 $('#form-crud select').attr('disabled', true);
@@ -113,72 +99,16 @@
     }
 
 
-    async function loadPositionDetail(id) {
-        try {
-            const response = await $.ajax({
-                url: '{{ route("coredata.positionTreeDetail") }}',
-                method: 'GET',
-                data: {
-                    id: id
-                }
-            });
 
-            // Isi field utama
-            $('#id').val(response.id);
-            $('#position_name').val(response.position_name);
-            $('#level').val(response.level);
-
-            // TUNGGU load parent selesai berdasarkan level data yang ditarik
-            await loadPositionParent(response.level);
-
-            // Setelah list parent tersedia, baru set valuenya
-            $('#parent_id').val(response.parent_id);
-
-        } catch (error) {
-            console.error('Error loading detail:', error);
-        }
-    }
-
-    // Fungsi untuk memuat posisi parent berdasarkan level
-    $('#level').on('change', function() {
-        var level = $(this).val();
-        loadPositionParent(level);
-    });
-
-    function loadPositionParent(level) {
-        // Return promise agar bisa di-await
-        return $.ajax({
-            url: '{{ route("coredata.positionTreeDetail") }}',
-            method: 'GET',
-            data: {
-                level: level - 1,
-                action: 'getParent'
-            }
-        }).done(function(response) {
-            let $parentSelect = $('#parent_id');
-            $parentSelect.empty().append('<option value="">Select Parent Position</option>');
-
-            if (response && response.length > 0) {
-                response.forEach(function(position) {
-                    $parentSelect.append(`<option value="${position.id}">${position.position_name}</option>`);
-                });
-            }
-        }).fail(function(xhr) {
-            console.error('Error fetching parent positions:', xhr);
-        });
-    }
     $('#form-crud').on('submit', function(e) {
         e.preventDefault();
         let action = $('#crud-action').val();
-        let id = $('#selected-position-id').val();
-        let url = '{{ route("coredata.CrudPosition") }}';
+        let url = '{{ route("coredata.CrudEducation") }}';
         let method = 'POST';
 
         let formData = {
             id: $('#id').val(),
-            position_name: $('#position_name').val(),
-            level: $('#level').val(),
-            parent_id: $('#parent_id').val(),
+            education_name: $('#education_name').val(),
             action: action,
             _token: '{{ csrf_token() }}'
         };
@@ -190,10 +120,7 @@
                 console.log(response);
                 if (response.success) {
                     showAlert(response.message, response.status);
-
                     $('#offcanvasEnd').offcanvas('hide');
-                    // REFRESH JSTREE
-                    $('#tree-position').jstree(true).refresh();
                     // Refresh data table atau lakukan aksi lain setelah sukses
                     reloadTable();
 

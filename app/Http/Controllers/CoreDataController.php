@@ -29,6 +29,60 @@ class CoreDataController extends Controller
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }
+
+    public function CrudEducation(Request $request)
+    {
+        // 1. Validasi dilakukan di awal (sebelum Transaction)
+        // Supaya jika gagal, Laravel otomatis mengembalikan pesan error 422
+        $rules = [
+            'action'        => 'required|in:insert,update,delete,create',
+            'id'            => $request->action == 'create' ? 'required|unique:mst_education,id' : 'required',
+            'education_name'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // 2. Siapkan data (Hanya untuk insert & update)
+        $data = [
+            'education_name' => $request->education_name,
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['id'] = $request->id;
+                    $data['created_at'] = now();
+                    DB::table('mst_education')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_education')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    // Tambahkan pengecekan: Apakah posisi ini punya bawahan (children)?
+                    $hasChildren = DB::table('mst_employee_education')->where('education_id', $request->id)->exists();
+                    if ($hasChildren) {
+                        throw new \Exception('Gagal menghapus! Posisi ini masih memiliki bawahan.');
+                    }
+
+                    DB::table('mst_education')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
     // end of Master Data - Education
 
     // Master Data - Work Status
@@ -51,6 +105,62 @@ class CoreDataController extends Controller
         }
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
+    }
+
+    public function CrudWorkStatus(Request $request)
+    {
+        // 1. Validasi dilakukan di awal (sebelum Transaction)
+        // Supaya jika gagal, Laravel otomatis mengembalikan pesan error 422
+        $rules = [
+            'action'        => 'required|in:insert,update,delete,create',
+            'id'            => $request->action == 'create' ? 'required|unique:mst_working_status,id' : 'required',
+            'working_name'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'working_code'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // 2. Siapkan data (Hanya untuk insert & update)
+        $data = [
+            'working_name' => $request->working_name,
+            'working_code' => $request->working_code,
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['id'] = $request->id;
+                    $data['created_at'] = now();
+                    DB::table('mst_working_status')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_working_status')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    // Tambahkan pengecekan: Apakah posisi ini punya bawahan (children)?
+                    $hasChildren = DB::table('mst_employee_grade')->where('grade_id', $request->id)->exists();
+                    if ($hasChildren) {
+                        throw new \Exception('Gagal menghapus! Posisi ini masih memiliki bawahan.');
+                    }
+
+                    DB::table('mst_working_status')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
     // end of Master Data - Work Status
 
@@ -206,13 +316,68 @@ class CoreDataController extends Controller
     public function getJobGradeData(Request $request)
     {
         $data = DB::table('mst_grade')
-            ->select('id', 'grade_name', 'created_at', 'updated_at', 'updated_by');
+            ->select('id', 'grade_name', 'created_at', 'created_by', 'updated_at', 'updated_by');
 
         if ($request->has('search') && !empty($request->search)) {
             $data = $data->where('grade_name', 'like', '%' . $request->search . '%');
         }
-        $data = $data->orderBy('created_at', 'desc')->get();
+        $data = $data->orderBy('grade_name', 'desc')->get();
         return response()->json($data);
+    }
+
+
+    public function CrudJobGrade(Request $request)
+    {
+        // 1. Validasi dilakukan di awal (sebelum Transaction)
+        // Supaya jika gagal, Laravel otomatis mengembalikan pesan error 422
+        $rules = [
+            'action'        => 'required|in:insert,update,delete,create',
+            'id'            => $request->action == 'create' ? 'required|unique:mst_grade,id' : 'required',
+            'grade_name'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // 2. Siapkan data (Hanya untuk insert & update)
+        $data = [
+            'grade_name' => $request->grade_name,
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['id'] = $request->id;
+                    $data['created_at'] = now();
+                    DB::table('mst_grade')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_grade')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    // Tambahkan pengecekan: Apakah posisi ini punya bawahan (children)?
+                    $hasChildren = DB::table('mst_employee_grade')->where('grade_id', $request->id)->exists();
+                    if ($hasChildren) {
+                        throw new \Exception('Gagal menghapus! Posisi ini masih memiliki bawahan.');
+                    }
+
+                    DB::table('mst_grade')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
     //end of Master Data - Job Grade
 

@@ -163,14 +163,6 @@
         // pagination: "remote",
         paginationSize: 10,
         paginationSizeSelector: [10, 25, 50, 100],
-        ajaxLoader: function() {
-            return `
-            <div class="custom-loader">
-                <div class="spinner"></div>
-                <div class="text">Loading data...</div>
-            </div>
-        `;
-        },
         columns: [{
                 title: "Photo",
                 field: "photo",

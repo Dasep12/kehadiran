@@ -47,7 +47,8 @@
                                                     Salary & Tax
                                                 </a>
                                                 <div class="dropdown-menu">
-                                                    <a href="{{ route('sallaryTax.allowances') }}" class="dropdown-item"> Allowances </a>
+                                                    <a href="{{ route('sallaryTax.allowances') }}" class="dropdown-item"> Sallary Component </a>
+                                                    <a href="{{ route('sallaryTax.allowancePosition') }}" class="dropdown-item"> Allowance Position </a>
                                                     <a href="{{ route('sallaryTax.payPeriods') }}" class="dropdown-item"> Pay Periods </a>
                                                     <a href="{{ route('sallaryTax.taxPtkp') }}" class="dropdown-item"> Tax Allowance (PTKP) </a>
                                                     <a href="{{ route('sallaryTax.taxTer') }}" class="dropdown-item"> Effective Tax Rate </a>

@@ -18,37 +18,70 @@ Route::get('/', function () {
 });
 
 
-// Master Coredata Routes
+// Master Education Routes
 Route::get('/coredata/education', [App\Http\Controllers\CoreDataController::class, 'education'])->name('coredata.education');
 Route::get('/master/education', [App\Http\Controllers\CoreDataController::class, 'getEducationData'])->name('coredata.getEducationData');
+Route::post('/master/education-crud', [App\Http\Controllers\CoreDataController::class, 'CrudEducation'])->name('coredata.CrudEducation');
+
+// Master Work Status Routes
 Route::get('/coredata/work-status', [App\Http\Controllers\CoreDataController::class, 'workStatus'])->name('coredata.workStatus');
 Route::get('/master/work-status', [App\Http\Controllers\CoreDataController::class, 'getWorkStatusData'])->name('coredata.getWorkStatusData');
+Route::post('/master/work-status-crud', [App\Http\Controllers\CoreDataController::class, 'CrudWorkStatus'])->name('coredata.CrudWorkStatus');
+
+// Master Position Routes
 Route::get('/coredata/position', [App\Http\Controllers\CoreDataController::class, 'position'])->name('coredata.position');
 Route::get('/master/position-employee', [App\Http\Controllers\CoreDataController::class, 'getPositionEmployee'])->name('coredata.getPositionEmployee');
 Route::post('/master/position-crud', [App\Http\Controllers\CoreDataController::class, 'CrudPosition'])->name('coredata.CrudPosition');
-
 Route::get('/coredata/positionTree', [App\Http\Controllers\CoreDataController::class, 'getTreePosition'])->name('coredata.positionTree');
 Route::get('/coredata/positionTreeDetail', [App\Http\Controllers\CoreDataController::class, 'getTreePositionDetail'])->name('coredata.positionTreeDetail');
-
-
 Route::get('/master/position', [App\Http\Controllers\CoreDataController::class, 'getPositionData'])->name('coredata.getPositionData');
+
+
+// Master Job Grade Routes
 Route::get('/coredata/job-grade', [App\Http\Controllers\CoreDataController::class, 'jobGrade'])->name('coredata.jobGrade');
 Route::get('/master/job-grade', [App\Http\Controllers\CoreDataController::class, 'getJobGradeData'])->name('coredata.getJobGradeData');
+Route::post('/master/job-grade-crud', [App\Http\Controllers\CoreDataController::class, 'CrudJobGrade'])->name('coredata.CrudJobGrade');
 
 
-
-// Master Sallary Tax Routes
+// Master Sallary Component Routes
 Route::get('/sallary-tax/allowances', [App\Http\Controllers\SallaryTaxController::class, 'allowances'])->name('sallaryTax.allowances');
 Route::get('/master/allowances', [App\Http\Controllers\SallaryTaxController::class, 'getAllowancesData'])->name('sallaryTax.getAllowancesData');
+Route::post('/master/allowances-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudAllowances'])->name('sallaryTax.CrudAllowances');
+
+// Master Allowance Position Routes
+Route::get('/sallary-tax/allowance-position', [App\Http\Controllers\SallaryTaxController::class, 'allowancePosition'])->name('sallaryTax.allowancePosition');
+Route::get('/master/allowance-position', [App\Http\Controllers\SallaryTaxController::class, 'getAllowancePositionData'])->name('sallaryTax.getAllowancePositionData');
+Route::post('/master/allowance-position-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudAllowancePosition'])->name('sallaryTax.CrudAllowancePosition');
+
+
+// Master Data - Pay Periods
 Route::get('/sallary-tax/pay-periods', [App\Http\Controllers\SallaryTaxController::class, 'payPeriods'])->name('sallaryTax.payPeriods');
 Route::get('/master/pay-periods', [App\Http\Controllers\SallaryTaxController::class, 'getPayPeriodsData'])->name('sallaryTax.getPayPeriodsData');
+Route::post('/master/pay-periods-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudPayPeriods'])->name('sallaryTax.CrudPayPeriods');
+
+
+// Master Data - Tax PTKP
 Route::get('/sallary-tax/tax-ptkp', [App\Http\Controllers\SallaryTaxController::class, 'taxPtkp'])->name('sallaryTax.taxPtkp');
 Route::get('/master/tax-ptkp', [App\Http\Controllers\SallaryTaxController::class, 'getTaxPtkpData'])->name('sallaryTax.getTaxPtkpData');
+Route::post('/master/tax-ptkp-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudTaxPTKP'])->name('sallaryTax.CrudTaxPtkp');
+
+
+// Master Data - Tax TER
 Route::get('/sallary-tax/tax-ter', [App\Http\Controllers\SallaryTaxController::class, 'taxTer'])->name('sallaryTax.taxTer');
 Route::get('/master/tax-ter', [App\Http\Controllers\SallaryTaxController::class, 'getTaxTerData'])->name('sallaryTax.getTaxTerData');
+Route::post('/master/tax-ter-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudTaxTER'])->name('sallaryTax.CrudTaxTer');
+
+
+
+// Master Data - Tax Brackets
 Route::get('/sallary-tax/tax-brackets', [App\Http\Controllers\SallaryTaxController::class, 'taxBrackets'])->name('sallaryTax.taxBrackets');
 Route::get('/master/tax-brackets', [App\Http\Controllers\SallaryTaxController::class, 'getTaxBracketsData'])->name('sallaryTax.getTaxBracketsData');
+Route::post('/master/tax-brackets-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudTaxBrackets'])->name('sallaryTax.CrudTaxBrackets');
+
+// Master Data - Tax Settings
 Route::get('/sallary-tax/tax-settings', [App\Http\Controllers\SallaryTaxController::class, 'taxSettings'])->name('sallaryTax.taxSettings');
+Route::get('/master/tax-settings', [App\Http\Controllers\SallaryTaxController::class, 'getTaxSettingsData'])->name('sallaryTax.getTaxSettingsData');
+Route::post('/master/tax-settings-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudTaxSettings'])->name('sallaryTax.CrudTaxSettings');
 
 
 Route::get('/sallary-tax/sallary-group', [App\Http\Controllers\SallaryTaxController::class, 'sallaryGroup'])->name('sallaryTax.sallaryGroup');
