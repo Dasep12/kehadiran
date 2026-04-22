@@ -157,7 +157,7 @@
                 formatter: "money",
                 formatterParams: {
                     decimal: ".",
-                    thousand: ",",
+                    thousand: "",
                     symbol: "Rp ",
                     precision: 0,
                 },

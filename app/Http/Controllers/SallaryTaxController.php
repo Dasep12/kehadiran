@@ -708,8 +708,119 @@ class SallaryTaxController extends Controller
                 'updated_at',
                 'updated_by'
             )->where('group_id', $request->group_id);
-        $data = $data->orderBy('created_at', 'desc')->get();
+        $data = $data->orderBy('start_date', 'desc')->get();
         return response()->json($data);
+    }
+    public function CrudSallaryGroup(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'group_id' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'name_group' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'group_id' => $request->group_id,
+            'name_group' => $request->name_group,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_basic_sallary_group')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_basic_sallary_group')->where('group_id', $request->group_id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_basic_sallary_group')->where('group_id', $request->group_id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            // 🔥 Decode jika detail dikirim sebagai JSON string
+            $detail = $request->detail;
+            if (is_string($detail)) {
+                $detail = json_decode($detail, true);
+            }
+            // 🔥 Proses detail hanya jika ada data
+            if (!empty($detail) && is_array($detail)) {
+                self::CrudSallaryGroupDetail($detail);
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    private function CrudSallaryGroupDetail(array $detail)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['group_id']) || empty($row['start_date'])) {
+                continue;
+            }
+
+            $data = [
+                'group_id'   => $row['group_id'],
+                'start_date' => $row['start_date'],
+                'end_date'   => $row['end_date'] == ""  ? NULL : $row['end_date'],
+                'amount'     => $row['amount']     ?? 0,
+                'updated_by' => auth()->id()       ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_basic_sallary_group_detail')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_basic_sallary_group_detail')
+                        ->where('group_id',   $row['group_id'])
+                        ->where('start_date', $row['start_date'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_basic_sallary_group_detail')
+                        ->where('group_id',   $row['group_id'])
+                        ->where('start_date', $row['start_date'])
+                        ->delete();
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
     }
 
     // End of Master Data - Sallary Group  
@@ -758,6 +869,7 @@ class SallaryTaxController extends Controller
                 'calculation_type',
                 'value',
                 'max_amount',
+                'min_amount',
                 'start_date',
                 'end_date',
                 'created_at',
@@ -766,6 +878,133 @@ class SallaryTaxController extends Controller
                 'updated_by'
             )->where('membership_id', $request->membership_id);
         $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+
+    public function CrudMembershipFees(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'membership_id' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'membership_code' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'membership_id' => $request->membership_id,
+            'membership_code' => $request->membership_code,
+            'calculation_type' => $request->calculation_type,
+            'base_type' => $request->base_type,
+            'employee_share' => $request->employee_share,
+            'company_share' => $request->company_share,
+            'is_active' => $request->is_active,
+            'is_taxable' => $request->is_taxable,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_membership')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_membership')->where('membership_id', $request->membership_id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_membership')->where('membership_id', $request->membership_id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            // 🔥 Decode jika detail dikirim sebagai JSON string
+            $detail = $request->detail;
+            if (is_string($detail)) {
+                $detail = json_decode($detail, true);
+            }
+            // 🔥 Proses detail hanya jika ada data
+            if (!empty($detail) && is_array($detail)) {
+                self::CrudMembershipFeesDetail($detail);
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    private function CrudMembershipFeesDetail(array $detail)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['membership_id']) || empty($row['start_date'])) {
+                continue;
+            }
+
+            $data = [
+                'membership_id'   => $row['membership_id'],
+                'calculation_type'   => $row['calculation_type'],
+                'value'     => $row['value'] ?? 0,
+                'max_amount'     => $row['max_amount']  ?? 0,
+                'min_amount'     => $row['min_amount']  ?? 0,
+                'start_date' => $row['start_date'],
+                'end_date'   => $row['end_date'] == ""  ? NULL : $row['end_date'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_membership_rate')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_membership_rate')
+                        ->where('rate_id',   $row['rate_id'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_membership_rate')
+                        ->where('rate_id',   $row['rate_id'])
+                        ->delete();
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    public function ListMemberhsipJson()
+    {
+        $data =   DB::table('mst_allowance_component')
+            ->select('id', 'allowance_name', 'is_tax', 'calc_for', 'allowance_code')
+            ->where('is_membership', 1)->get();
         return response()->json($data);
     }
 }

@@ -176,7 +176,7 @@
                                  <div class="row g-0">
                                      <div class="col-4">
                                          <a href="#" class="d-flex flex-column flex-center text-center text-secondary py-2 px-2 link-hoverable">
-                                             <img src="./static/brands/amazon.svg" class="w-6 h-6 mx-auto mb-2" width="24" height="24" alt="">
+                                             <img src="" class="w-6 h-6 mx-auto mb-2" width="24" height="24" alt="">
                                              <span class="h5">Amazon</span>
                                          </a>
                                      </div>
@@ -188,7 +188,7 @@
              </div>
              <div class="nav-item dropdown">
                  <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown" aria-label="Open user menu">
-                     <span class="avatar avatar-sm" style="background-image: url(./static/avatars/000m.jpg)"> </span>
+                     <span class="avatar avatar-sm" style=""> </span>
                      <div class="d-none d-xl-block ps-2">
                          <div>Paweł Kuna</div>
                          <div class="mt-1 small text-secondary">UI Designer</div>

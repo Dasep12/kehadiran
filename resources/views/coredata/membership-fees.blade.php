@@ -50,7 +50,7 @@
                                         <a class="dropdown-item" href="#">PDF</a>
                                     </div>
                                 </div>
-                                <a href="#" class="btn btn-0"> Create </a>
+                                <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create </button>
                             </div>
                         </div>
                     </div>
@@ -87,8 +87,7 @@
 
         dataTree: true,
         dataTreeStartExpanded: false,
-
-
+        index: 'membership_id',
         columns: [{
                 formatter: function() {
                     return "<b>+<b>";
@@ -135,7 +134,7 @@
                                 formatter: "money",
                                 formatterParams: {
                                     decimal: ",",
-                                    thousand: ".",
+                                    thousand: "",
                                     symbol: "Rp ",
                                     precision: 0,
                                 },
@@ -196,13 +195,19 @@
                 field: "base_type"
             }, {
                 title: "Employee Share",
-                field: "employee_share"
+                field: "employee_share",
+                formatter: "tickCross",
+                hozAlign: "center"
             }, {
                 title: "Company Share",
-                field: "company_share"
+                field: "company_share",
+                formatter: "tickCross",
+                hozAlign: "center"
             }, {
                 title: "Status",
-                field: "is_active"
+                field: "is_active",
+                formatter: "tickCross",
+                hozAlign: "center"
             }, {
                 title: "Created At",
                 field: "created_at",
@@ -221,7 +226,7 @@
                 title: "Action",
                 formatter: actionFormatter,
                 width: 100,
-                freeze: true,
+                frozen: true,
                 hozAlign: "center",
                 cellClick: function(e, cell) {
                     const row = cell.getRow().getData();
@@ -239,28 +244,30 @@
     });
 
     function actionFormatter(cell) {
-        return `<a class="btn btn-sm btn-outline-primary">
+        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().membership_id}')" class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
-        </a>
-        <a class="btn btn-sm btn-outline-danger">
+        </button>
+        <button type="button" onclick="Crud('delete', '${cell.getRow().getData().membership_id}')" class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-        </a>
+        </button>
         `;
     }
 
     function reloadTable() {
         const search = document.getElementById("search-input").value;
 
-        table.setData("{{ route('sallaryTax.getSallaryGroupData') }}", {
+        table.setData("{{ route('sallaryTax.getMembershipFeesData') }}", {
             search: search
         });
     }
 </script>
 @endpush
+
+@include('coredata.partials.crud-membership-fees');
 @endsection

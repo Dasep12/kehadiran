@@ -84,10 +84,17 @@ Route::get('/master/tax-settings', [App\Http\Controllers\SallaryTaxController::c
 Route::post('/master/tax-settings-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudTaxSettings'])->name('sallaryTax.CrudTaxSettings');
 
 
+
+// Master Data - Sallary Group
 Route::get('/sallary-tax/sallary-group', [App\Http\Controllers\SallaryTaxController::class, 'sallaryGroup'])->name('sallaryTax.sallaryGroup');
 Route::get('/master/sallary-group', [App\Http\Controllers\SallaryTaxController::class, 'getSallaryGroupData'])->name('sallaryTax.getSallaryGroupData');
 Route::get('/master/sallary-group-detail', [App\Http\Controllers\SallaryTaxController::class, 'getSallaryGroupDataDetail'])->name('sallaryTax.getSallaryGroupDataDetail');
+Route::post('/master/sallary-group-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudSallaryGroup'])->name('sallaryTax.CrudSallaryGroup');
 
+
+// Master Data - Membership Fees
 Route::get('/sallary-tax/membership-fees', [App\Http\Controllers\SallaryTaxController::class, 'membershipFees'])->name('sallaryTax.membershipFees');
 Route::get('/master/membership-fees', [App\Http\Controllers\SallaryTaxController::class, 'getMembershipFeesData'])->name('sallaryTax.getMembershipFeesData');
 Route::get('/master/membership-rate-detail', [App\Http\Controllers\SallaryTaxController::class, 'getMembershipFeesDataRate'])->name('sallaryTax.getMembershipFeesDataRate');
+Route::post('/master/membership-fees-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudMembershipFees'])->name('sallaryTax.CrudMembershipFees');
+Route::get('/master/membership-list', [App\Http\Controllers\SallaryTaxController::class, 'ListMemberhsipJson'])->name('sallaryTax.ListMemberhsipJson');
