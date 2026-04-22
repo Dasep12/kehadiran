@@ -98,3 +98,15 @@ Route::get('/master/membership-fees', [App\Http\Controllers\SallaryTaxController
 Route::get('/master/membership-rate-detail', [App\Http\Controllers\SallaryTaxController::class, 'getMembershipFeesDataRate'])->name('sallaryTax.getMembershipFeesDataRate');
 Route::post('/master/membership-fees-crud', [App\Http\Controllers\SallaryTaxController::class, 'CrudMembershipFees'])->name('sallaryTax.CrudMembershipFees');
 Route::get('/master/membership-list', [App\Http\Controllers\SallaryTaxController::class, 'ListMemberhsipJson'])->name('sallaryTax.ListMemberhsipJson');
+
+
+// Worktime - Work Time
+Route::get('/worktime/worktime-attendance-types', [App\Http\Controllers\WorkTimeController::class, 'AttendaceTypes'])->name('worktime.AttendaceTypes');
+Route::get('/worktime/worktime-attendance-types-get', [App\Http\Controllers\WorkTimeController::class, 'getAttendaceTypesData'])->name('worktime.getAttendaceTypesData');
+Route::post('/worktime/worktime-attendance-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudAttendaceTypes'])->name('worktime.CrudAttendaceTypes');
+
+
+// Worktime - Shift Settings 
+Route::get('/worktime/worktime-shift-settings', [App\Http\Controllers\WorkTimeController::class, 'ShiftSettings'])->name('worktime.ShiftSettings');
+Route::get('/worktime/worktime-shift-group', [App\Http\Controllers\WorkTimeController::class, 'getShiftGroupData'])->name('worktime.getShiftGroupData');
+Route::get('/worktime/worktime-shift', [App\Http\Controllers\WorkTimeController::class, 'getShiftData'])->name('worktime.getShiftData');
