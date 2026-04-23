@@ -109,4 +109,13 @@ Route::post('/worktime/worktime-attendance-crud', [App\Http\Controllers\WorkTime
 // Worktime - Shift Settings 
 Route::get('/worktime/worktime-shift-settings', [App\Http\Controllers\WorkTimeController::class, 'ShiftSettings'])->name('worktime.ShiftSettings');
 Route::get('/worktime/worktime-shift-group', [App\Http\Controllers\WorkTimeController::class, 'getShiftGroupData'])->name('worktime.getShiftGroupData');
+Route::post('/worktime/worktime-shift-group-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShiftGroup'])->name('worktime.CrudShiftGroup');
+
+
 Route::get('/worktime/worktime-shift', [App\Http\Controllers\WorkTimeController::class, 'getShiftData'])->name('worktime.getShiftData');
+Route::post('/worktime/worktime-shift-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShift'])->name('worktime.CrudShift');
+
+Route::get('/worktime/worktime-shift-pattern', [App\Http\Controllers\WorkTimeController::class, 'getShiftPatternData'])->name('worktime.getShiftPatternData');
+Route::get('/worktime/worktime-shift-pattern-detail', [App\Http\Controllers\WorkTimeController::class, 'getShiftPatternDetailData'])->name('worktime.getShiftPatternDetailData');
+
+Route::post('/worktime/worktime-shift-pattern-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShiftPattern'])->name('worktime.CrudShiftPattern');

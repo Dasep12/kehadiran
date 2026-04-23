@@ -21,29 +21,26 @@
                 <div class="card-header">
                     <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <a href="#tabs-home-1" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">Group Shift</a>
+                            <a href="#tabs-shift-group" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">Group Shift</a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="#tabs-profile-1" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Shift</a>
+                            <a href="#tabs-shift" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Shift</a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="#tabs-profile-1" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Shift Pattern</a>
+                            <a href="#tabs-shift-pattern" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Shift Pattern</a>
                         </li>
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="tab-content">
-                        <div class="tab-pane active show" id="tabs-home-1" role="tabpanel">
-                            @include('worktime.partials.grid-shift-group')
+                        <div class="tab-pane active show" id="tabs-shift-group" role="tabpanel">
+                            @include('worktime.partials.shift-settings.grid-shift-group')
                         </div>
-                        <div class="tab-pane" id="tabs-profile-1" role="tabpanel">
-                            @include('worktime.partials.grid-shift')
+                        <div class="tab-pane" id="tabs-shift" role="tabpanel">
+                            @include('worktime.partials.shift-settings.grid-shift')
                         </div>
-                        <div class="tab-pane" id="tabs-settings-1" role="tabpanel">
-                            <h4>Settings tab</h4>
-                            <div>
-                                Donec ac vitae diam amet vel leo egestas consequat rhoncus in luctus amet, facilisi sit mauris accumsan nibh habitant senectus
-                            </div>
+                        <div class="tab-pane" id="tabs-shift-pattern" role="tabpanel">
+                            @include('worktime.partials.shift-settings.grid-shift-pattern')
                         </div>
                     </div>
                 </div>

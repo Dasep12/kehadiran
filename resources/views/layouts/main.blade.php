@@ -14,6 +14,8 @@
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 
     @vite(['resources/js/app.js'])
 </head>
@@ -75,6 +77,7 @@
 <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     // Fungsi Global untuk Toast
     window.showAlert = function(message, type = 'success') {
@@ -117,6 +120,22 @@
             stopOnFocus: true,
         }).showToast();
     }
+
+    flatpickr(".time_picker", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        allowInput: true // ⬅️ ini yang bikin bisa diketik
+    });
+
+    flatpickr(".date_picker", {
+        enableTime: false,
+        noCalendar: false, // ⬅️ ini yang bikin hanya jam
+        dateFormat: "Y-m-d", // format 24 jam (contoh: 14:30)
+        clickOpens: true,
+        allowInput: true
+    });
 </script>
 @stack('scripts')
 

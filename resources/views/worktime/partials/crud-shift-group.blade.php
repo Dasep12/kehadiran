@@ -1,7 +1,7 @@
-<div class="offcanvas offcanvas-end scroll" id="offcanvasEnd">
-    <form id="form-crud" method="POST" action="">
+<div class="offcanvas offcanvas-end" id="offcanvasEnd">
+    <form id="form-crud-shift-group" method="POST" action="">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasEndLabel">Crud Education</h5>
+            <h5 class="offcanvas-title" id="offcanvasEndLabel">Crud Shift Group</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -9,50 +9,24 @@
                 <div class="mb-3 row">
                     <label class="col-3 col-form-label required">ID</label>
                     <div class="col">
-                        <input type="text" name="period_id" id="period_id" class="form-control" aria-describedby="emailHelp" placeholder="Enter ID">
+                        <input type="text" name="shift_group_id" id="shift_group_id" class="form-control" aria-describedby="emailHelp" placeholder="Enter ID">
                     </div>
                 </div>
-
                 <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Period Name</label>
+                    <label class="col-3 col-form-label required">Group Name</label>
                     <div class="col">
-                        <input type="text" name="period_name" id="period_name" class="form-control" aria-describedby="periodNameHelp" placeholder="Enter period name">
+                        <input type="text" name="shift_group_name" id="shift_group_name" class="form-control" aria-describedby="educationHelp" placeholder="Enter name">
                     </div>
                 </div>
 
-
-
                 <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Start Date</label>
+                    <label class="col-3 col-form-label required">Remarks</label>
                     <div class="col">
-                        <input type="date" name="start_date" id="start_date" class="form-control date_picker" aria-describedby="startDateHelp" placeholder="Enter start date">
-                    </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">End Date</label>
-                    <div class="col">
-                        <input type="date" name="end_date" id="end_date" class="form-control date_picker" aria-describedby="endDateHelp" placeholder="Enter end date">
-                    </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Pay Date</label>
-                    <div class="col">
-                        <input type="date" name="pay_date" id="pay_date" class="form-control date_picker" aria-describedby="payDateHelp" placeholder="Enter pay date">
+                        <input type="text" name="description" id="description" class="form-control" aria-describedby="educationHelp" placeholder="Enter remarks">
                     </div>
                 </div>
 
 
-                <div class="mb-3 row">
-                    <label class="col-3 col-form-label"></label>
-                    <div class="col d-flex gap-3">
-                        <label class="form-check form-switch">
-                            <input name="is_closed" id="is_closed" class="form-check-input" type="checkbox" checked />
-                            <span class="form-check-label">Closed</span>
-                        </label>
-                    </div>
-                </div>
 
 
                 <div class="text-end">
@@ -83,39 +57,35 @@
 
 @push('scripts')
 <script>
-    function Crud(action, id) {
+    function CrudShiftGroup(action, id) {
         // Reset state form setiap kali buka
-        document.getElementById('form-crud').reset();
-        $('#form-crud').find('input, select').attr('readonly', false).attr('disabled', false);
-        $('#period_id').attr('readonly', false); // ID biasanya selalu readonly
+        document.getElementById('form-crud-shift-group').reset();
+        $('#form-crud-shift-group').find('input, select').attr('readonly', false).attr('disabled', false);
+        $('#shift_group_id').attr('readonly', true); // ID biasanya selalu readonly
 
         $('#crud-action').val(action);
         $('#Crud-ErrorInfo').html(''); // Reset error info
         $('#offcanvasEnd').offcanvas('show');
         if (id !== '*') {
-            let data = table.getRow(id).getData();
-            $("#period_id").val(data.period_id);
-            $('#period_name').val(data.period_name);
-            $('#pay_date').val(data.pay_date);
-            $("#is_closed").prop('checked', data.is_closed === 1);
-            $('#start_date').val(data.start_date);
-            $('#end_date').val(data.end_date);
-            $('#amount').val(data.amount);
-
+            let data = tableGroupShift.getRow(id).getData();
+            console.log(data)
+            $('#shift_group_id').val(data.shift_group_id);
+            $('#shift_group_name').val(data.shift_group_name);
+            $('#description').val(data.description);
         }
 
         switch (action) {
             case 'create':
-                $('#offcanvasEndLabel').text('Create Pay Period');
+                $('#offcanvasEndLabel').text('Create Group Shift');
                 break;
 
             case 'update':
-                $('#period_id').attr('readonly', true); // ID tidak bisa diubah saat update
-                $('#offcanvasEndLabel').text('Edit Pay Period');
+                $('#shift_group_id').attr('readonly', true); // ID tidak bisa diubah saat update
+                $('#offcanvasEndLabel').text('Edit Group Shift');
                 break;
 
             case 'delete':
-                $('#offcanvasEndLabel').text('Delete Pay Period');
+                $('#offcanvasEndLabel').text('Delete Group Shift');
                 $('#Crud-ErrorInfo').html(`<div class="col-md-12 p-1">
                     <div class="alert alert-important alert-warning alert-dismissible" role="alert">
                         <div class="alert-icon">
@@ -132,8 +102,8 @@
                     </div>
                 </div>`);
                 // Matikan semua input untuk konfirmasi hapus
-                $('#form-crud input').attr('readonly', true);
-                $('#form-crud select').attr('disabled', true);
+                $('#form-crud-shift-group input').attr('readonly', true);
+                $('#form-crud-shift-group select').attr('disabled', true);
 
                 break;
         }
@@ -141,35 +111,29 @@
 
 
 
-    $('#form-crud').on('submit', function(e) {
+    $('#form-crud-shift-group').on('submit', function(e) {
         e.preventDefault();
         let action = $('#crud-action').val();
-        let url = '{{ route("sallaryTax.CrudPayPeriods") }}';
+        let url = '{{ route("worktime.CrudShiftGroup") }}';
         let method = 'POST';
 
         let formData = {
-            id: $('#period_id').val(),
-            period_id: $('#period_id').val(),
-            period_name: $('#period_name').val(),
-            pay_date: $('#pay_date').val(),
-            is_closed: $('#is_closed').is(':checked') ? 1 : 0,
-            start_date: $('#start_date').val(),
-            end_date: $('#end_date').val(),
+            shift_group_id: $('#shift_group_id').val(),
+            shift_group_name: $('#shift_group_name').val(),
+            description: $('#description').val(),
             action: action,
             _token: '{{ csrf_token() }}'
         };
-        console.log(formData);
         $.ajax({
             url: url,
             method: method,
             data: formData,
             success: function(response) {
-                console.log(response);
                 if (response.success) {
                     showAlert(response.message, response.status);
                     $('#offcanvasEnd').offcanvas('hide');
                     // Refresh data table atau lakukan aksi lain setelah sukses
-                    reloadTable();
+                    reloadTableShiftGroup();
 
                 } else {
                     $('#Crud-ErrorInfo').html(`<div class="col-md-12 p-1">
@@ -190,6 +154,7 @@
                 }
             },
             error: function(xhr) {
+                console.error('Error submitting form:', xhr.responseJSON);
                 $('#Crud-ErrorInfo').html(`<div class="col-md-12 p-1">
                     <div class="alert alert-important alert-danger alert-dismissible" role="alert">
                         <div class="alert-icon">
