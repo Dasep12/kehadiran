@@ -80,7 +80,7 @@ class WorkTimeController extends Controller
             return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
         }
     }
-    // end of Master Data - Education
+    // end of Work Time - Attendance Types
 
 
     // Work time - Setting Shift 
@@ -370,4 +370,312 @@ class WorkTimeController extends Controller
             }
         }
     }
+
+    // End Of Work time - Setting Shift 
+
+    // Work time - Setting Overtime 
+    public function OvertimeSettings()
+    {
+        $data = [
+            'title' => 'Overtime',
+        ];
+        return view('worktime.overtime-settings', $data);
+    }
+    public function getOvertimeRuleData(Request $request)
+    {
+        $data = DB::table('mst_overtime_rule as a')
+            ->select('a.*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('rule_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+    public function getOvertimeRateData(Request $request)
+    {
+        $data = DB::table('vw_master_overtime_rate as a')
+            ->select('a.*');
+
+        $data = $data->where('rule_id', $request->rule_id);
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('rule_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('hour_from', 'asc')->get();
+        return response()->json($data);
+    }
+
+    public function CrudOvertimeRule(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'rule_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'overtime_type' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'overtime_category' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'rule_name' => $request->rule_name,
+            'overtime_type' => $request->overtime_type,
+            'overtime_category' => $request->overtime_category,
+            'min_minutes' => $request->min_minutes,
+            'max_minutes' => $request->max_minutes,
+            'fixed_amount' => $request->fixed_amount,
+            'is_active' => $request->is_active,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_overtime_rule')->insert($data);
+
+                    $last_id = DB::getPdo()->lastInsertId();
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_overtime_rule')->where('id', $request->id)->update($data);
+                    $last_id = $request->id;
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_overtime_rule')->where('id', $request->id)->delete();
+                    $last_id = $request->id;
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            // 🔥 Decode jika detail dikirim sebagai JSON string
+            $detail = $request->detail;
+            if (is_string($detail)) {
+                $detail = json_decode($detail, true);
+            }
+
+            // 🔥 Proses detail hanya jika ada data
+            if (!empty($detail) && is_array($detail)) {
+                self::CrudOvertimeRate($detail, $last_id);
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    private function CrudOvertimeRate(array $detail, $rule_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            if (empty($row['rule_id'])) {
+                $row['rule_id'] = $rule_id;
+            }
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['rule_id']) || empty($row['hour_from']) || empty($row['hour_to'])) {
+                continue;
+            }
+            $data = [
+                'rule_id'   => $row['rule_id'],
+                'hour_from'   => $row['hour_from'],
+                'hour_to'     => $row['hour_to'],
+                'multiplier'     => $row['multiplier'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_overtime_rate')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_overtime_rate')
+                        ->where('id',   $row['id'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_overtime_rate')
+                        ->where('id',   $row['id'])
+                        ->delete();
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+
+
+    public function getOvertimeGroupData(Request $request)
+    {
+        $data = DB::table('mst_overtime_group as a')
+            ->select('a.*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('group_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+    public function getOvertimeGroupDetailData(Request $request)
+    {
+        $data = DB::table('vw_mst_overtime_group_rule as a')
+            ->select('a.*');
+
+        $data = $data->where('group_id', $request->group_id);
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('rule_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('rule_id', 'asc')->get();
+        return response()->json($data);
+    }
+
+    public function CrudOvertimeGroup(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'rule_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'overtime_type' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'overtime_category' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'group_name' => $request->group_name,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_overtime_group')->insert($data);
+
+                    $last_id = DB::getPdo()->lastInsertId();
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_overtime_group')->where('id', $request->id)->update($data);
+                    $last_id = $request->id;
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_overtime_group')->where('id', $request->id)->delete();
+                    $last_id = $request->id;
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            // 🔥 Decode jika detail dikirim sebagai JSON string
+            $detail = $request->detail;
+            if (is_string($detail)) {
+                $detail = json_decode($detail, true);
+            }
+
+            // 🔥 Proses detail hanya jika ada data
+            if (!empty($detail) && is_array($detail)) {
+                self::CrudOvertimeGroupDetail($detail, $last_id);
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    private function CrudOvertimeGroupDetail(array $detail, $group_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            if (empty($row['group_id'])) {
+                $row['group_id'] = $group_id;
+            }
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['group_id']) || empty($row['rule_id'])) {
+                continue;
+            }
+
+            $rule_data = DB::table('mst_overtime_rule')
+                ->where('id', $row['rule_id'])
+                ->select('overtime_type', 'overtime_category')
+                ->first();
+            $data = [
+                'group_id'   => $row['group_id'],
+                'rule_id'   => $row['rule_id'],
+                'overtime_category'     => $rule_data->overtime_type,
+                'working_day_type'     => $rule_data->overtime_category,
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_overtime_group_detail')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_overtime_group_detail')
+                        ->where('id',   $row['id'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_overtime_group_detail')
+                        ->where('id',   $row['id'])
+                        ->delete();
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+    // End Of Work time - Setting Overtime 
+
+
 }

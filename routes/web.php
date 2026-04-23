@@ -111,7 +111,6 @@ Route::get('/worktime/worktime-shift-settings', [App\Http\Controllers\WorkTimeCo
 Route::get('/worktime/worktime-shift-group', [App\Http\Controllers\WorkTimeController::class, 'getShiftGroupData'])->name('worktime.getShiftGroupData');
 Route::post('/worktime/worktime-shift-group-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShiftGroup'])->name('worktime.CrudShiftGroup');
 
-
 Route::get('/worktime/worktime-shift', [App\Http\Controllers\WorkTimeController::class, 'getShiftData'])->name('worktime.getShiftData');
 Route::post('/worktime/worktime-shift-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShift'])->name('worktime.CrudShift');
 
@@ -119,3 +118,14 @@ Route::get('/worktime/worktime-shift-pattern', [App\Http\Controllers\WorkTimeCon
 Route::get('/worktime/worktime-shift-pattern-detail', [App\Http\Controllers\WorkTimeController::class, 'getShiftPatternDetailData'])->name('worktime.getShiftPatternDetailData');
 
 Route::post('/worktime/worktime-shift-pattern-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShiftPattern'])->name('worktime.CrudShiftPattern');
+
+
+// Worktime - Overtime Settings
+Route::get('/worktime/worktime-overtime-settings', [App\Http\Controllers\WorkTimeController::class, 'OvertimeSettings'])->name('worktime.OvertimeSettings');
+Route::get('/worktime/worktime-overtime-rule', [App\Http\Controllers\WorkTimeController::class, 'getOvertimeRuleData'])->name('worktime.getOvertimeRuleData');
+Route::get('/worktime/worktime-overtime-rate', [App\Http\Controllers\WorkTimeController::class, 'getOvertimeRateData'])->name('worktime.getOvertimeRateData');
+Route::post('/worktime/worktime-overtime-rule-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudOvertimeRule'])->name('worktime.CrudOvertimeRule');
+
+Route::get('/worktime/worktime-overtime-group', [App\Http\Controllers\WorkTimeController::class, 'getOvertimeGroupData'])->name('worktime.getOvertimeGroupData');
+Route::get('/worktime/worktime-overtime-group-detail', [App\Http\Controllers\WorkTimeController::class, 'getOvertimeGroupDetailData'])->name('worktime.getOvertimeGroupDetailData');
+Route::post('/worktime/worktime-overtime-group-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudOvertimeGroup'])->name('worktime.CrudOvertimeGroup');
