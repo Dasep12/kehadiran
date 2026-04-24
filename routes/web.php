@@ -129,3 +129,9 @@ Route::post('/worktime/worktime-overtime-rule-crud', [App\Http\Controllers\WorkT
 Route::get('/worktime/worktime-overtime-group', [App\Http\Controllers\WorkTimeController::class, 'getOvertimeGroupData'])->name('worktime.getOvertimeGroupData');
 Route::get('/worktime/worktime-overtime-group-detail', [App\Http\Controllers\WorkTimeController::class, 'getOvertimeGroupDetailData'])->name('worktime.getOvertimeGroupDetailData');
 Route::post('/worktime/worktime-overtime-group-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudOvertimeGroup'])->name('worktime.CrudOvertimeGroup');
+
+
+// Worktime  - Work Calendar
+Route::get('/worktime/worktime-work-calendar', [App\Http\Controllers\WorkTimeController::class, 'WorkCalendar'])->name('worktime.WorkCalendar');
+Route::get('/worktime/worktime-work-calendar-data', [App\Http\Controllers\WorkTimeController::class, 'getWorkCalendarData'])->name('worktime.getWorkCalendarData');
+Route::post('/worktime/worktime-work-calendar-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudWorkCalendar'])->name('worktime.CrudWorkCalendar');

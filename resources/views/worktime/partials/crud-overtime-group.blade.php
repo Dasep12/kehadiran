@@ -34,6 +34,11 @@
                 </div>
 
                 <div class="mb-3 row">
+                    <a href="#" onclick="CrudDetailOvertimeGroup('create','','')" class="text-primary mb-2">Add New <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-library-plus">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M18.333 2a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-4.333 4a1 1 0 0 0 -1 1v2h-2a1 1 0 0 0 0 2h2v2a1 1 0 0 0 2 0v-2h2a1 1 0 0 0 0 -2h-2v-2a1 1 0 0 0 -1 -1" />
+                            <path d="M3.517 6.391a1 1 0 0 1 .99 1.738c-.313 .178 -.506 .51 -.507 .868v10c0 .548 .452 1 1 1h10c.284 0 .405 -.088 .626 -.486a1 1 0 0 1 1.748 .972c-.546 .98 -1.28 1.514 -2.374 1.514h-10c-1.652 0 -3 -1.348 -3 -3v-10.002a3 3 0 0 1 1.517 -2.605" />
+                        </svg></a>
                     <div id="grid-overtime-group-detail" class="mb-3"></div>
                 </div>
                 <div class="text-end">
@@ -130,26 +135,28 @@
         })
     }
 
-    let shiftOptions = {}; // format: {id: "nama"}
+    let RuleOptions = {};
 
-    function loadShiftOptions() {
+    function loadRuleOptions() {
         return $.ajax({
-            url: "{{ route('worktime.getShiftData') }}",
+            url: "{{ route('worktime.getOvertimeRuleData') }}",
             method: "GET",
             success: function(response) {
-                // asumsi response array
-                // [{shift_id:1, shift_name:"Pagi"}, ...]
-                shiftOptions = {};
+                RuleOptions = {};
 
                 response.forEach(function(item) {
-                    shiftOptions[item.shift_id] = item.shift_name;
+                    RuleOptions[item.id] = {
+                        label: item.rule_name,
+                        overtime_type: item.overtime_type,
+                        working_day_type: item.overtime_category
+                    };
                 });
             }
         });
     }
     $(document).ready(function() {
         loadGroupShift();
-        loadShiftOptions()
+        loadRuleOptions()
     });
 
 
@@ -168,77 +175,91 @@
             group_id: $("#group_id").val() // kirim membership_id untuk filter data detail,
         },
         // 🔥 layout fix (penting)
-        layout: "fitColumns",
-        // layout: "fitData",
+        // layout: "fitColumns",
+        layout: "fitData",
         responsiveLayout: false, // disable hide/collapse → pakai scroll
         height: "200px",
         // 🔥 pagination
         // pagination: "local",
         // paginationSize: 10,
         // paginationSizeSelector: [10, 25, 50, 100],
-        index: "pattern_detail_id",
+        index: "detail_id",
         dataTree: true,
         dataTreeStartExpanded: false,
         columns: [{
                 title: "Action",
                 field: 'option',
-                formatter: actionFormatterDetailPattern,
+                formatter: actionFormatterDetailOTGroup,
                 width: 120,
                 frozen: true,
                 hozAlign: "center",
+            }, {
+                title: "id",
+                field: "detail_id",
+                visible: false
             }, {
                 title: "group_id",
                 field: "group_id",
                 visible: false
             }, {
-                title: "rule_id",
-                field: "rule_id",
-            },
-            {
                 title: "Status",
                 field: "status",
                 width: 100,
                 formatter: "html",
+            }, {
+                title: "rule",
+                field: "rule_id",
+                editor: "list",
+                editable: editCheck,
+                editorParams: function(cell) {
+                    return {
+                        values: Object.fromEntries(
+                            Object.entries(RuleOptions).map(([key, val]) => [key, val.label])
+                        )
+                    };
+                },
+                formatter: function(cell) {
+                    let value = cell.getValue();
+                    return RuleOptions[value]?.label || "";
+                },
+                cellEdited: function(cell) {
+                    let value = cell.getValue();
+                    let row = cell.getRow();
+
+                    let rule = RuleOptions[value];
+
+                    if (rule) {
+                        row.update({
+                            overtime_type: rule.overtime_type,
+                            working_day_type: rule.working_day_type
+                        });
+                    }
+                }
+            },
+            {
+                title: "Overtime Type",
+                field: "overtime_type"
+            }, {
+                title: "Day Type",
+                field: "working_day_type",
+                hozAlign: "center"
             },
             {
                 title: "action",
                 field: "action",
                 visible: false
-            },
-            {
-                title: "Shift",
-                field: "shift_id",
-                editor: "list",
-                editable: editCheck,
-                editorParams: function(cell) {
-                    return {
-                        values: shiftOptions // ⬅️ dari AJAX
-                    };
-                },
-                formatter: function(cell) {
-                    let value = cell.getValue();
-                    return shiftOptions[value] || "";
-                }
-            },
-            {
-                title: "Day Seq",
-                field: "day_sequence",
-                width: 110,
-                editor: "input", // 🔥 WAJIB ada, sebelumnya tidak ada
-                editable: editCheck,
-                hozAlign: "center",
             }
 
         ]
     });
 
-    function actionFormatterDetailPattern(cell) {
+    function actionFormatterDetailOTGroup(cell) {
         var rowData = cell.getRow().getData();
 
         // Encode composite key sebagai JSON string (aman untuk HTML attribute)
-        var pattern_detail_id = rowData.pattern_detail_id;
+        var detail_id = rowData.detail_id;
         return `<button type="button" 
-            onclick="CrudDetailOvertimeGroup('update', '${pattern_detail_id}')" 
+            onclick="CrudDetailOvertimeGroup('update', '${detail_id}')" 
             class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" 
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -247,7 +268,7 @@
             </svg>
         </button>
         <button type="button" 
-            onclick="CrudDetailOvertimeGroup('delete','${pattern_detail_id}')" 
+            onclick="CrudDetailOvertimeGroup('delete','${detail_id}')" 
             class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" 
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -265,17 +286,14 @@
         });
     }
 
-    function CrudDetailOvertimeGroup(action, pattern_detail_id) {
+    function CrudDetailOvertimeGroup(action, id) {
 
 
         if (action === 'create') {
             // 🔥 Tambah row baru di bawah tabel
             tableDetailOvertimeGroup.addRow({
-                    pattern_id: $("#pattern_id").val(), // ambil group_id dari form
-                    start_date: '',
-                    end_date: null,
-                    max_amount: 0,
-                    value: 0,
+                    group_id: $("#group_id").val(), // ambil group_id dari form
+                    rule_id: '',
                     status: "<span class='badge bg-success text-white'>new</span>",
                     action: 'create', // 🔥 langsung set action create
                     edit_mode: true // 🔥 langsung masuk mode edit
@@ -291,10 +309,10 @@
 
         let rowComponent = tableDetailOvertimeGroup.getRows().find(r => {
             let d = r.getData();
-            return d.pattern_detail_id == pattern_detail_id;
+            return d.detail_id == id;
         });
         if (!rowComponent) {
-            console.warn("Row tidak ditemukan:", pattern_detail_id);
+            console.warn("Row tidak ditemukan:", id);
             return;
         }
 

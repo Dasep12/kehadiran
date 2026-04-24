@@ -101,7 +101,7 @@
                                     <a class="dropdown-item" href="{{ route('worktime.AttendaceTypes') }}"> Attendance Types </a>
                                     <a class="dropdown-item" href="{{ route('worktime.ShiftSettings')}}"> Shift Settings </a>
                                     <a class="dropdown-item" href="{{ route('worktime.OvertimeSettings') }}"> Overtime </a>
-                                    <a class="dropdown-item" href="./working-calendar.html"> Work Calendar </a>
+                                    <a class="dropdown-item" href="{{ route('worktime.WorkCalendar') }}"> Work Calendar </a>
                                 </div>
                             </li>
 

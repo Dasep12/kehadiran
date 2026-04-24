@@ -559,9 +559,7 @@ class WorkTimeController extends Controller
         // Validasi
         $rules = [
             'action' => 'required|in:insert,update,delete,create',
-            'rule_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
-            'overtime_type' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
-            'overtime_category' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'group_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
         ];
 
         $request->validate($rules);
@@ -630,6 +628,7 @@ class WorkTimeController extends Controller
             if (empty($row['group_id'])) {
                 $row['group_id'] = $group_id;
             }
+
             // 🔥 Validasi field wajib sebelum proses
             if (empty($row['group_id']) || empty($row['rule_id'])) {
                 continue;
@@ -659,13 +658,13 @@ class WorkTimeController extends Controller
 
                 case 'update':
                     DB::table('mst_overtime_group_detail')
-                        ->where('id',   $row['id'])
+                        ->where('id',   $row['detail_id'])
                         ->update($data);
                     break;
 
                 case 'delete':
                     DB::table('mst_overtime_group_detail')
-                        ->where('id',   $row['id'])
+                        ->where('id',   $row['detail_id'])
                         ->delete();
                     break;
 
@@ -678,4 +677,92 @@ class WorkTimeController extends Controller
     // End Of Work time - Setting Overtime 
 
 
+    // Work time - Work Calendar
+    public function WorkCalendar()
+    {
+        $data = [
+            'title' => 'Work Calendar',
+        ];
+        return view('worktime.work-calendar', $data);
+    }
+
+    public function getWorkCalendarData(Request $request)
+    {
+        $holidays = DB::table('mst_holiday')
+            ->where('is_active', 1)
+            ->get();
+
+        $events = [];
+
+        foreach ($holidays as $h) {
+            $events[] = [
+                'id' => $h->holiday_id,
+                'title' => $h->holiday_name,
+                'start' => $h->holiday_date,
+                'allDay' => true,
+
+                // styling
+                'color' => '#ff4d4f',
+
+                // custom data
+                'extendedProps' => [
+                    'type' => $h->holiday_type
+                ]
+            ];
+        }
+
+        return response()->json($events);
+    }
+
+    public function CrudWorkCalendar(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'holiday_date' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'holiday_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'holiday_type' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'holiday_date' => $request->holiday_date,
+            'holiday_name' => $request->holiday_name,
+            'holiday_type' => $request->holiday_type,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_holiday')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_holiday')->where('holiday_id', $request->holiday_id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_holiday')->where('holiday_id', $request->holiday_id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+    // End Of Work time - Work Calendar
 }
