@@ -86,13 +86,14 @@
                     </button>
                 </div>
             </div>
+            <div id="CrudShift-ErrorInfo"></div>
         </div>
 
     </form>
 
     <!-- Menyimpan aksi CRUD saat ini -->
     <input type="text" hidden id="crudShift-action" value="">
-    <div id="CrudShift-ErrorInfo"></div>
+
 </div>
 
 @push('scripts')

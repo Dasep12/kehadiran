@@ -10,13 +10,13 @@
     }
 </style>
 
-<div class="offcanvas offcanvas-end" id="offcanvasShiftPatternEnd">
+<div class="offcanvas offcanvas-end offcanvas-narrow" id="offcanvasShiftPatternEnd">
     <form id="form-shift-pattern-crud" method="POST" action="">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasShiftPatternEndLabel">Crud Education</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvasShiftPattern" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body">
+        <div class="offcanvas-body d-flex flex-column">
             <div id="content-crud">
 
                 <div class="mb-3 row">
@@ -79,13 +79,15 @@
                     </button>
                 </div>
             </div>
+
+            <div id="CrudShiftPattern-ErrorInfo"></div>
         </div>
 
     </form>
 
     <!-- Menyimpan aksi CRUD saat ini -->
     <input type="text" hidden id="crudShiftPattern-action" value="">
-    <div id="CrudShiftPattern-ErrorInfo"></div>
+
 </div>
 
 @push('scripts')

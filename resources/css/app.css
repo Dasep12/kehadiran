@@ -202,3 +202,7 @@ body {
 .offcanvas.offcanvas-end {
     width: 550px !important;
 }
+
+.offcanvas-body {
+    max-height: 700px !important;
+}

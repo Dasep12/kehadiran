@@ -58,13 +58,14 @@
                     </button>
                 </div>
             </div>
+            <div id="CrudOvertimeGroup-ErrorInfo"></div>
         </div>
 
     </form>
 
     <!-- Menyimpan aksi CRUD saat ini -->
     <input type="text" hidden id="CrudOvertimeGroup-action" value="">
-    <div id="CrudOvertimeGroup-ErrorInfo"></div>
+
 </div>
 
 @push('scripts')

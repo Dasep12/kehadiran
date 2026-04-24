@@ -72,13 +72,14 @@
                     </button>
                 </div>
             </div>
+            <div id="Crud-ErrorInfo"></div>
         </div>
 
     </form>
 
     <!-- Menyimpan aksi CRUD saat ini -->
     <input type="text" hidden id="crud-action" value="">
-    <div id="Crud-ErrorInfo"></div>
+
 </div>
 
 @push('scripts')
