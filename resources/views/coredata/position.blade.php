@@ -155,6 +155,9 @@
         ajaxConfig: "GET",
         // layout: "fitData",
         layout: "fitColumns",
+        columnDefaults: {
+            vertAlign: "middle",
+        },
         responsiveLayout: false,
         pagination: "local",
         height: "450px",
@@ -164,28 +167,27 @@
         paginationSize: 10,
         paginationSizeSelector: [10, 25, 50, 100],
         columns: [{
-                title: "Photo",
-                field: "photo",
-                width: 100,
-                hozAlign: "center",
-                formatter: function(cell) {
-                    let row = cell.getRow().getData();
-                    let name = row.employee_name || "-";
-                    let photo = row.photo;
-                    let fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
-                    let image = photo || fallback;
-                    return `
-                    <div class="">
-                        <span class="avatar avatar-2 me-2"
-                            style="background-image: url('${image}')"
-                            onerror="this.style.backgroundImage='url(${fallback})'">
-                        </span>
-                    </div>`;
-                }
-            },
-            {
                 title: "Employee Name",
                 field: "employee_name",
+                formatter: function(cell, val) {
+                    var data = cell.getData();
+
+                    return `<div style="display:flex; align-items:center; gap:10px;">
+                            <span 
+                                class="avatar avatar-sm"
+                                style="
+                                    width:32px;
+                                    height:32px;
+                                    border-radius:50%;
+                                    background-image: url('../${data.photo_path}');
+                                    background-size: cover;
+                                    background-position: center;
+                                ">
+                            </span>
+                            <span>${data.employee_name}</span>
+                        </div>
+                    `;
+                },
             },
             {
                 title: "Employee Code",

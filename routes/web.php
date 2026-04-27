@@ -135,3 +135,13 @@ Route::post('/worktime/worktime-overtime-group-crud', [App\Http\Controllers\Work
 Route::get('/worktime/worktime-work-calendar', [App\Http\Controllers\WorkTimeController::class, 'WorkCalendar'])->name('worktime.WorkCalendar');
 Route::get('/worktime/worktime-work-calendar-data', [App\Http\Controllers\WorkTimeController::class, 'getWorkCalendarData'])->name('worktime.getWorkCalendarData');
 Route::post('/worktime/worktime-work-calendar-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudWorkCalendar'])->name('worktime.CrudWorkCalendar');
+
+
+// Attendance - Shift Employee
+Route::get('/attendance/attendance-shift-employee', [App\Http\Controllers\AttendanceController::class, 'EmployeeShift'])->name('attendance.EmployeeShift');
+Route::get('/attendance/attendance-shift-employee-data', [App\Http\Controllers\AttendanceController::class, 'getEmployeeShiftData'])->name('attendance.getEmployeeShiftData');
+Route::post('/worktime/worktime-work-calendar-crud', [App\Http\Controllers\AttendanceController::class, 'CrudEmployeeShift'])->name('attendance.CrudEmployeeShift');
+
+
+// EMPLOYEE - EMPLOYEE DATA
+Route::get('/employees/employees-employee-data', [App\Http\Controllers\EmployeeController::class, 'getDataEmployee'])->name('employees.getDataEmployee');
