@@ -18,7 +18,13 @@ class EmployeeController extends Controller
 
     public function getDataEmployee(Request $request)
     {
-        $data = DB::table('vw_employee')->get();
-        return response()->json($data);
+        $data = DB::table('vw_employee');
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where(function ($query) use ($request) {
+                $query->where('employee_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('employee_code', 'like', '%' . $request->search . '%');
+            });
+        }
+        return response()->json($data->get());
     }
 }

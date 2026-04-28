@@ -36,6 +36,17 @@ Route::get('/coredata/positionTree', [App\Http\Controllers\CoreDataController::c
 Route::get('/coredata/positionTreeDetail', [App\Http\Controllers\CoreDataController::class, 'getTreePositionDetail'])->name('coredata.positionTreeDetail');
 Route::get('/master/position', [App\Http\Controllers\CoreDataController::class, 'getPositionData'])->name('coredata.getPositionData');
 
+// Master Organization Routes
+Route::get('/coredata/organization', [App\Http\Controllers\CoreDataController::class, 'organization'])->name('coredata.organization');
+Route::get('/coredata/organizationTree', [App\Http\Controllers\CoreDataController::class, 'getTreeOrganization'])->name('coredata.organizationTree');
+Route::get('/master/organization-employee', [App\Http\Controllers\CoreDataController::class, 'getOrganizationEmployee'])->name('coredata.getOrganizationEmployee');
+Route::get('/coredata/organizationTree', [App\Http\Controllers\CoreDataController::class, 'getTreeOrganization'])->name('coredata.organizationTree');
+Route::get('/coredata/organizationTreeDetail', [App\Http\Controllers\CoreDataController::class, 'getTreeOrganizationDetail'])->name('coredata.OrganizationTreeDetail');
+Route::post('/master/organization-crud', [App\Http\Controllers\CoreDataController::class, 'CrudOrganization'])->name('coredata.CrudOrganization');
+Route::get('/master/organization-parent-level', [App\Http\Controllers\CoreDataController::class, 'getParentOrganizationLevel'])->name('coredata.getParentOrganizationLevel');
+
+// Master Company Routes
+Route::get('/master/company-data', [App\Http\Controllers\CoreDataController::class, 'getCompanyData'])->name('coredata.getCompanyData');
 
 // Master Job Grade Routes
 Route::get('/coredata/job-grade', [App\Http\Controllers\CoreDataController::class, 'jobGrade'])->name('coredata.jobGrade');
@@ -149,4 +160,5 @@ Route::get('/attendance/attendance-allowance-employee-data', [App\Http\Controlle
 
 
 // EMPLOYEE - EMPLOYEE DATA
+Route::get('/employees/index', [App\Http\Controllers\EmployeeController::class, 'index'])->name('employees.index');
 Route::get('/employees/employees-employee-data', [App\Http\Controllers\EmployeeController::class, 'getDataEmployee'])->name('employees.getDataEmployee');

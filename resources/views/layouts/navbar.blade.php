@@ -35,10 +35,10 @@
                                 <div class="dropdown-menu">
                                     <div class="dropdown-menu-columns">
                                         <div class="dropdown-menu-column">
-                                            <a href="./positions.html" class="dropdown-item"> Organization </a>
+                                            <a href="{{ route('coredata.organization') }}" class="dropdown-item"> Company </a>
+                                            <a href="{{ route('coredata.organization') }}" class="dropdown-item"> Organization </a>
                                             <a href="{{ route('coredata.position') }}" class="dropdown-item"> Position </a>
                                             <a href="{{ route('coredata.jobGrade') }}" class="dropdown-item"> Job Grade </a>
-                                            <a href="{{ route('coredata.workStatus') }}" class="dropdown-item"> Employment Status </a>
                                             <a href="{{ route('coredata.education') }}" class="dropdown-item"> Education </a>
                                         </div>
                                         <div class="dropdown-menu-column">
@@ -58,6 +58,8 @@
                                             </div>
                                             <a class="dropdown-item" href="{{ route('sallaryTax.sallaryGroup') }}"> Salary Groups </a>
                                             <a class="dropdown-item" href="{{ route('sallaryTax.membershipFees') }}"> Membership Fees </a>
+                                            <a href="{{ route('coredata.workStatus') }}" class="dropdown-item"> Employment Status </a>
+
                                         </div>
                                     </div>
                                 </div>
@@ -78,7 +80,7 @@
                                 </a>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="./import-employee.html"> Import Employees </a>
-                                    <a class="dropdown-item" href="./employee-list.html"> Employee List </a>
+                                    <a class="dropdown-item" href="{{ route('employees.index') }}"> Employee List </a>
                                 </div>
                             </li>
 
