@@ -138,6 +138,14 @@
         clickOpens: true,
         allowInput: true
     });
+
+    flatpickr(".range_date_picker", {
+        mode: "range", // 🔥 ini wajib
+        dateFormat: "Y-m-d", // format output
+        enableTime: false, // tanpa jam
+        allowInput: true,
+        defaultDate: [new Date(), new Date()]
+    });
 </script>
 @stack('scripts')
 

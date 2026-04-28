@@ -120,7 +120,7 @@
                                 <div class="dropdown-menu">
                                     <div class="dropdown-menu-columns">
                                         <div class="dropdown-menu-column">
-                                            <a class="dropdown-item" href="./attendance-log.html"> Employee Attendance </a>
+                                            <a class="dropdown-item" href="{{ route('attendance.EmployeeAttendance') }}"> Employee Attendance </a>
                                             <a class="dropdown-item" href="{{ route('attendance.EmployeeShift') }}"> Shift Assignments </a>
                                         </div>
                                         <div class="dropdown-menu-column">
