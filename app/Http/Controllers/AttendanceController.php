@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -121,7 +123,9 @@ class AttendanceController extends Controller
             return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
         }
     }
+    // End of Attendance - Employee Shift 
 
+    // Attendance - Employee Attendance
     public function EmployeeAttendance()
     {
         $data = [
@@ -255,4 +259,116 @@ class AttendanceController extends Controller
 
         return response()->json($data);
     }
+    // End of Attendance - Employee Attendance 
+
+    // Attendance Attendance - Employee Schedule
+    public function EmployeeSchedule()
+    {
+        $data = [
+            'title' => 'Schedule Employee',
+        ];
+        return view('attendance.schedule-employee', $data);
+    }
+
+    public function EmployeeScheduleData(Request $request)
+    {
+        // Filter dari Request (misal dari input date range)
+        $startDate = $request->input('start_date', '2026-04-01');
+        $endDate = $request->input('end_date', '2026-04-30');
+
+        // Buat list semua tanggal dalam range tersebut
+        $period = CarbonPeriod::create($startDate, $endDate);
+        $allDates = [];
+        foreach ($period as $date) {
+            $allDates[] = $date->format('Y-m-d');
+        }
+
+        $rawSchedules = DB::table('vw_employee_schedule')
+            ->whereBetween('work_date', [$startDate, $endDate])
+            ->get();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $rawSchedules = $rawSchedules->where('employee_name', 'like', '%' . $request->search . '%')
+                ->OrWhere('employee_code', $request->search);
+        }
+
+        $data = $rawSchedules->groupBy('employee_id')->map(function ($items) {
+            $first = $items->first();
+            $row = [
+                'photo' => $first->photo,
+                'name'  => $first->employee_name,
+                'code'  => $first->employee_code,
+            ];
+
+            foreach ($items as $item) {
+                $key = 'day_' . Carbon::parse($item->work_date)->format('d_M');
+                // Simpan object agar Tabulator tahu ini kerja atau libur
+                $row[$key] = [
+                    'name' => $item->shift_name ?? ($item->schedule_type == 'HOLIDAY' ? $item->schedule_type : '-'),
+                    'type' => $item->schedule_type
+                ];
+            }
+            return $row;
+        })->values();
+
+        // Buat label untuk header kolom
+        $dateLabels = collect($allDates)->map(function ($date) {
+            return [
+                'field' => 'day_' . Carbon::parse($date)->format('d_M'),
+                'label' => Carbon::parse($date)->format('d M')
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+            'dateLabels' => $dateLabels
+        ]);
+    }
+
+    public function GenerateSchedule(Request $request)
+    {
+        $group = $request->shift_group_id;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        try {
+            // Gunakan DB::statement untuk mengeksekusi procedure
+            // Gunakan bindings (?) untuk mencegah SQL Injection
+
+
+            if ($group == "all") {
+                $group_all =  DB::table('mst_shift_group')->select('shift_group_id')->get();
+                foreach ($group_all as $gr) {
+                    DB::statement("CALL sp_generate_employee_schedule(?, ?, ?)", [
+                        $gr->shift_group_id,
+                        $start_date,
+                        $end_date
+                    ]);
+                }
+            } else {
+                DB::statement("CALL sp_generate_employee_schedule(?, ?, ?)", [
+                    $group,
+                    $start_date,
+                    $end_date
+                ]);
+            }
+
+
+
+            return response()->json([
+                'status'  => 'success',
+                'success'   => true,
+                'message' => 'Schedule generated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            // Tangkap error jika prosedur gagal
+            return response()->json([
+                'status'  => 'error',
+                'success'   => false,
+                'message' => 'Failed to generate schedule: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    // End of Attendance - Employee Schedule
+
 }

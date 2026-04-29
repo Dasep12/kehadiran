@@ -165,6 +165,13 @@ Route::get('/attendance/attendance-employee-data', [App\Http\Controllers\Attenda
 Route::get('/attendance/attendance-allowance-employee-data', [App\Http\Controllers\AttendanceController::class, 'getEmployeeAttendanceAllowanceData'])->name('attendance.getEmployeeAttendanceAllowanceData');
 
 
+
+// Attendance - Schedule Employee
+Route::get('/attendance/schedule-employee', [App\Http\Controllers\AttendanceController::class, 'EmployeeSchedule'])->name('attendance.EmployeeSchedule');
+Route::get('/attendance/schedule-employee-data', [App\Http\Controllers\AttendanceController::class, 'EmployeeScheduleData'])->name('attendance.EmployeeScheduleData');
+Route::post('/attendance/schedule-employee-data', [App\Http\Controllers\AttendanceController::class, 'GenerateSchedule'])->name('attendance.GenerateSchedule');
+
+
 // EMPLOYEE - EMPLOYEE DATA
 Route::get('/employees/index', [App\Http\Controllers\EmployeeController::class, 'index'])->name('employees.index');
 Route::get('/employees/employees-employee-data', [App\Http\Controllers\EmployeeController::class, 'getDataEmployee'])->name('employees.getDataEmployee');

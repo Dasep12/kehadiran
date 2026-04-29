@@ -146,6 +146,30 @@
         allowInput: true,
         defaultDate: [new Date(), new Date()]
     });
+
+    // 1. Ambil tanggal sekarang
+    const now = new Date();
+    // 2. Dapatkan tanggal 1 di bulan berjalan
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // 3. Dapatkan tanggal terakhir di bulan berjalan
+    // (Angka 0 pada parameter 'day' akan mengembalikan hari terakhir dari bulan sebelumnya)
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    flatpickr(".range_date_picker_schedule", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        enableTime: false,
+        allowInput: true,
+        // Masukkan variabel yang sudah dibuat ke defaultDate
+        defaultDate: [firstDay, lastDay],
+
+        // Opsional: jalankan fungsi loadSchedule otomatis saat inisialisasi selesai
+        onReady: function(selectedDates, dateStr, instance) {
+            // Jika kamu ingin tabel langsung muncul saat halaman load
+            // loadSchedule(); 
+        }
+    });
 </script>
 @stack('scripts')
 

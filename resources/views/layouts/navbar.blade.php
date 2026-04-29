@@ -123,9 +123,11 @@
                                     <div class="dropdown-menu-columns">
                                         <div class="dropdown-menu-column">
                                             <a class="dropdown-item" href="{{ route('attendance.EmployeeAttendance') }}"> Employee Attendance </a>
-                                            <a class="dropdown-item" href="{{ route('attendance.EmployeeShift') }}"> Shift Assignments </a>
+                                            <a class="dropdown-item" href="{{ route('attendance.EmployeeSchedule') }}"> Employee Schedule </a>
+
                                         </div>
                                         <div class="dropdown-menu-column">
+                                            <a class="dropdown-item" href="{{ route('attendance.EmployeeShift') }}"> Shift Assignments </a>
                                             <div class="dropend">
                                                 <a class="dropdown-item dropdown-toggle" href="#sidebar-approval" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                                                     Approvals
@@ -135,6 +137,7 @@
                                                     <a href="./approve-permit.html" class="dropdown-item"> Leave Approval </a>
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
