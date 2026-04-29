@@ -112,7 +112,7 @@
 
             case 'update':
                 $('#offcanvasEndLabel').text('Edit Organization');
-                $('#organization_id').attr('disabled', false);
+                $('#organization_id').attr('disabled', true);
                 loadOrganizationDetail(id)
                 break;
 

@@ -7,6 +7,154 @@ use Illuminate\Support\Facades\DB;
 
 class CoreDataController extends Controller
 {
+
+
+    // Master Data - Company 
+    public function Company()
+    {
+        $data = [
+            'title' => 'Company',
+        ];
+        return view('coredata.company', $data);
+    }
+
+    public function getCompanyDataJson(Request $request)
+    {
+        $data = DB::table('mst_company_group as a')
+            ->select('*');
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('a.group_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+
+    public function getSubCompanyData(Request $request)
+    {
+        $data = DB::table('mst_company')
+            ->select('*')
+            ->where('group_id', $request->group_id);
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+
+    public function CrudCompany(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'group_id' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'group_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $message = '';
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'group_id' => $request->group_id,
+            'group_name' => $request->group_name,
+            'is_active' => $request->is_active,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_company_group')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_company_group')->where('group_id', $request->group_id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_company_group')->where('group_id', $request->group_id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            // 🔥 Decode jika detail dikirim sebagai JSON string
+            $detail = $request->detail;
+            if (is_string($detail)) {
+                $detail = json_decode($detail, true);
+            }
+            // 🔥 Proses detail hanya jika ada data
+            if (!empty($detail) && is_array($detail)) {
+                self::CrudSubCompanyDetail($detail, $request->group_id);
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    private function CrudSubCompanyDetail(array $detail, string $group_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['company_id'])) {
+                continue;
+            }
+
+            $data = [
+                'group_id'   => $group_id,
+                'company_id'   => $row['company_id'],
+                'company_name'   => $row['company_name'],
+                'initial'   => $row['initial'],
+                'is_active' => 1,
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_company')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_company')
+                        ->where('company_id',   $row['company_id'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_company')
+                        ->where('company_id',   $row['company_id'])
+                        ->delete();
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    // End of Master Data - Company 
+
     // Master Data - Education
     public function education()
     {
@@ -39,6 +187,7 @@ class CoreDataController extends Controller
             'id'            => $request->action == 'create' ? 'required|unique:mst_education,id' : 'required',
             'education_name'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
         ];
+        $message = '';
 
         $request->validate($rules);
 

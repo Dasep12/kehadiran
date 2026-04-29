@@ -139,7 +139,7 @@
     $('#form-crud-work-calendar').on('submit', function(e) {
         e.preventDefault();
         let action = $('#crud-action').val();
-        let url = '{{ route("worktime.CrudWorkCalendar") }}';
+        let url = "{{ route('worktime.CrudWorkCalendar') }}";
         let method = 'POST';
 
         let formData = {

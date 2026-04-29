@@ -19,6 +19,12 @@ Route::get('/', function () {
 
 
 // Master Education Routes
+Route::get('/coredata/company', [App\Http\Controllers\CoreDataController::class, 'Company'])->name('coredata.company');
+Route::get('/coredata/company-data', [App\Http\Controllers\CoreDataController::class, 'getCompanyDataJson'])->name('coredata.getCompanyDataJson');
+Route::get('/coredata/company-data-detail', [App\Http\Controllers\CoreDataController::class, 'getSubCompanyData'])->name('coredata.getSubCompanyData');
+Route::post('/coredata/company-data-crud', [App\Http\Controllers\CoreDataController::class, 'CrudCompany'])->name('coredata.CrudCompany');
+
+// Master Education Routes
 Route::get('/coredata/education', [App\Http\Controllers\CoreDataController::class, 'education'])->name('coredata.education');
 Route::get('/master/education', [App\Http\Controllers\CoreDataController::class, 'getEducationData'])->name('coredata.getEducationData');
 Route::post('/master/education-crud', [App\Http\Controllers\CoreDataController::class, 'CrudEducation'])->name('coredata.CrudEducation');
@@ -151,7 +157,7 @@ Route::post('/worktime/worktime-work-calendar-crud', [App\Http\Controllers\WorkT
 // Attendance - Shift Employee
 Route::get('/attendance/attendance-shift-employee', [App\Http\Controllers\AttendanceController::class, 'EmployeeShift'])->name('attendance.EmployeeShift');
 Route::get('/attendance/attendance-shift-employee-data', [App\Http\Controllers\AttendanceController::class, 'getEmployeeShiftData'])->name('attendance.getEmployeeShiftData');
-Route::post('/worktime/worktime-work-calendar-crud', [App\Http\Controllers\AttendanceController::class, 'CrudEmployeeShift'])->name('attendance.CrudEmployeeShift');
+Route::post('/worktime/worktime-employee-shift-crud', [App\Http\Controllers\AttendanceController::class, 'CrudEmployeeShift'])->name('attendance.CrudEmployeeShift');
 
 // Attendance - Daily Attendance Employee
 Route::get('/attendance/attendance-employee', [App\Http\Controllers\AttendanceController::class, 'EmployeeAttendance'])->name('attendance.EmployeeAttendance');

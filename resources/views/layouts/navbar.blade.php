@@ -35,7 +35,7 @@
                                 <div class="dropdown-menu">
                                     <div class="dropdown-menu-columns">
                                         <div class="dropdown-menu-column">
-                                            <a href="{{ route('coredata.organization') }}" class="dropdown-item"> Company </a>
+                                            <a href="{{ route('coredata.company') }}" class="dropdown-item"> Company </a>
                                             <a href="{{ route('coredata.organization') }}" class="dropdown-item"> Organization </a>
                                             <a href="{{ route('coredata.position') }}" class="dropdown-item"> Position </a>
                                             <a href="{{ route('coredata.jobGrade') }}" class="dropdown-item"> Job Grade </a>
