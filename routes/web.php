@@ -170,6 +170,9 @@ Route::get('/attendance/attendance-allowance-employee-data', [App\Http\Controlle
 Route::get('/attendance/schedule-employee', [App\Http\Controllers\AttendanceController::class, 'EmployeeSchedule'])->name('attendance.EmployeeSchedule');
 Route::get('/attendance/schedule-employee-data', [App\Http\Controllers\AttendanceController::class, 'EmployeeScheduleData'])->name('attendance.EmployeeScheduleData');
 Route::post('/attendance/schedule-employee-data', [App\Http\Controllers\AttendanceController::class, 'GenerateSchedule'])->name('attendance.GenerateSchedule');
+Route::post('/attendance/schedule-crud-ovveride', [App\Http\Controllers\AttendanceController::class, 'CrudOvveride'])->name('attendance.CrudOvveride');
+Route::get('/attendance/schedule-shift-ovveride', [App\Http\Controllers\AttendanceController::class, 'ShiftOvverideData'])->name('attendance.ShiftOvverideData');
+
 
 
 // EMPLOYEE - EMPLOYEE DATA

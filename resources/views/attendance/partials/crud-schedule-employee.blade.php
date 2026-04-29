@@ -130,11 +130,27 @@
                     options += `<option value="${groupShift.shift_group_id}">${groupShift.shift_group_name}</option>`;
                 });
                 $('#shift_group_id').html(options);
+                $('#shift_group_id_ovveride').html(options);
             }
         })
     }
 
+    function loadShift() {
+        $.ajax({
+            url: "{{ route('worktime.getShiftData') }}",
+            method: "GET",
+            success: function(response) {
+                let options = '<option value="">Select Shift</option>';
+                response.forEach(function(groupShift) {
+                    options += `<option value="${groupShift.shift_id}">${groupShift.shift_name}</option>`;
+                });
+                $('#shift_id_ovveride').html(options);
+            }
+        });
+    }
+
     loadGroupShift()
+    loadShift()
 
 
     $('#form-crud').on('submit', function(e) {

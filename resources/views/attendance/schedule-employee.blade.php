@@ -87,6 +87,8 @@
                                     </div>
                                 </div>
                                 <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create Schedule</button>
+
+                                <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="CrudShiftOvveride('create','*')" data-bs-target="#offcanvasEndOvveride" role="button" aria-controls="offcanvasEnd"> Create Shift Override</button>
                             </div>
                         </div>
                     </div>
@@ -166,7 +168,6 @@
                             let color = "#2c3e50";
                             let fontWeight = "normal";
 
-                            console.log(cellData);
                             if (cellData.type === "HOLIDAY" || cellData.type === "OFF") {
                                 color = "#e74c3c"; // Merah untuk Libur/Off
                                 fontWeight = "bold";
@@ -208,4 +209,5 @@
 
 
 @include('attendance.partials.crud-schedule-employee');
+@include('attendance.partials.crud-shift-ovveride');
 @endsection

@@ -369,6 +369,68 @@ class AttendanceController extends Controller
             ], 500);
         }
     }
+
+    public function CrudOvveride(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'shift_group_id' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'shift_id' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $message = '';
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'shift_group_id' => $request->shift_group_id,
+            'work_date' => $request->work_date,
+            'shift_id' => $request->shift_id,
+            'is_work' => $request->is_work,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('trn_shift_group_override_detail')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('trn_shift_group_override_detail')->where('id', $request->id)->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('trn_shift_group_override_detail')->where('id', $request->id)->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function ShiftOvverideData(Request $request)
+    {
+        $data = DB::table('trn_shift_group_override_detail as a')
+            ->leftJoin('mst_shift as b', 'b.shift_id', 'a.shift_id')
+            ->leftJoin('mst_shift_group as c', 'c.shift_group_id', 'a.shift_group_id')
+            ->select('a.*', 'b.shift_name', 'c.shift_group_name');
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
     // End of Attendance - Employee Schedule
 
 }
