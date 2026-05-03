@@ -178,3 +178,5 @@ Route::get('/attendance/schedule-shift-ovveride', [App\Http\Controllers\Attendan
 // EMPLOYEE - EMPLOYEE DATA
 Route::get('/employees/index', [App\Http\Controllers\EmployeeController::class, 'index'])->name('employees.index');
 Route::get('/employees/employees-employee-data', [App\Http\Controllers\EmployeeController::class, 'getDataEmployee'])->name('employees.getDataEmployee');
+Route::get('/employees/employees-employee-detail-data', [App\Http\Controllers\EmployeeController::class, 'getDetailEmployee'])->name('employees.getDetailEmployee');
+Route::post('/employees/employees-crud', [App\Http\Controllers\EmployeeController::class, 'CrudEmployee'])->name('employees.CrudEmployee');

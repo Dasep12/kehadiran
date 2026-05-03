@@ -1,3 +1,17 @@
+<style>
+    /* .nav-link {
+        color: #FFF !important
+    }
+
+    .nav-item {
+        color: #FFF !important
+    }
+
+    .navbar-expand-md .nav-item.active .nav-link {
+        color: #FFF !important;
+        border-bottom-color: #ffffff !important;
+    } */
+</style>
 <header class="navbar-expand-md">
     <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="navbar">

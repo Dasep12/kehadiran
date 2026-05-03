@@ -83,10 +83,11 @@
         // 🔥 pagination
         pagination: "local",
         paginationSize: 10,
+        index: "employee_id",
         paginationSizeSelector: [10, 25, 50, 100],
         columns: [{
                 title: "ID",
-                field: "id",
+                field: "employee_id",
                 visible: false
             },
             {
@@ -119,6 +120,13 @@
                 title: "Email",
                 field: "email",
             }, {
+                title: "Company",
+                field: "company_name",
+            },
+            {
+                title: "Organization",
+                field: "organization_name",
+            }, {
                 title: "Position",
                 field: "position_name",
             },
@@ -130,7 +138,6 @@
                 title: "Grade",
                 field: "grade_name",
             },
-
             {
                 title: "Join Date",
                 field: "join_date",
@@ -157,18 +164,19 @@
                 formatter: actionFormatter,
                 width: 100,
                 hozAlign: "center",
+                frozen: true
             }
         ],
     });
 
     function actionFormatter(cell) {
-        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().id}')" class="btn btn-sm btn-outline-primary">
+        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().employee_id}')" class="btn btn-sm btn-outline-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
         </button>
-        <button type="button" onclick="Crud('delete', '${cell.getRow().getData().id}')" class="btn btn-sm btn-outline-danger">
+        <button type="button" onclick="Crud('delete', '${cell.getRow().getData().employee_id}')" class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -184,7 +192,33 @@
             search: search
         });
     }
+
+    function reloadAllTables() {
+        let empId = $("#employee_id").val();
+
+        tableOrganization.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "organization"
+        });
+
+        tablePosition.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "position"
+        });
+
+        tableGrade.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "grade"
+        });
+
+        tableWorkingStatus.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "working_status"
+        });
+    }
 </script>
 @endpush
 
+
+@include("employee.partials.crud-employee")
 @endsection
