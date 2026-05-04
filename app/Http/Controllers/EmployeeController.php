@@ -116,6 +116,27 @@ class EmployeeController extends Controller
     }
 
 
+    public function getSalaryByJoinDate(Request $request)
+    {
+        $joinDate = $request->join_date;
+
+        $data = DB::table('mst_basic_sallary_group as msg')
+            ->join('mst_basic_sallary_group_detail as gsd', 'msg.group_id', '=', 'gsd.group_id')
+            ->select(
+                'msg.group_id',
+                'msg.name_group',
+                'gsd.amount'
+            )
+            ->whereDate('gsd.start_date', '<=', $joinDate)
+            ->where(function ($q) use ($joinDate) {
+                $q->whereDate('gsd.end_date', '>=', $joinDate)
+                    ->orWhereNull('gsd.end_date');
+            })
+            ->get();
+
+        return response()->json($data);
+    }
+
     // Helper decode JSON kalau string
     private function parseJson($data)
     {
@@ -206,6 +227,8 @@ class EmployeeController extends Controller
                 'position'       => 'CrudPosition',
                 'workingStatus'  => 'CrudWorkingStatus',
                 'grade'          => 'CrudGrade',
+                'basicSalary'    => 'CrudBasicSalary',
+                'bank'    => 'CrudBankAccount',
             ];
 
             foreach ($details as $key => $method) {
@@ -565,6 +588,191 @@ class EmployeeController extends Controller
                         DB::table('mst_employee_grade')
                             ->where('employee_id', $last->employee_id)
                             ->where('grade_id', $last->grade_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => null,
+                            ]);
+                    }
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    private function CrudBasicSalary(array $detail, string $employee_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['group_id']) || empty($row['emp_start_date']) || empty($row['allowance_id'])) {
+                continue;
+            }
+
+            $data = [
+                'employee_id'   => $employee_id,
+                'allowance_id'   => $row['allowance_id'],
+                'group_id'   => $row['group_id'],
+                'start_date'   => $row['emp_start_date'],
+                'end_date'   => $row['emp_end_date'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+
+                    $last = DB::table('mst_employee_basic_sallary')
+                        ->where('employee_id',   $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_basic_sallary')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('group_id', $last->group_id)
+                            ->where('allowance_id', $last->allowance_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
+                                'updated_at' => now(),
+                            ]);
+                    }
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_employee_basic_sallary')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_basic_sallary')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('allowance_id', $row['allowance_id'])
+                        ->where('group_id',   $row['group_id'])
+                        ->where('start_date',   $row['emp_start_date'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_employee_basic_sallary')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('allowance_id', $row['allowance_id'])
+                        ->where('group_id',   $row['group_id'])
+                        ->where('start_date',   $row['emp_start_date'])
+                        ->delete();
+
+                    $last = DB::table('mst_employee_basic_sallary')
+                        ->where('employee_id', $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_basic_sallary')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('allowance_id', $last->allowance_id)
+                            ->where('group_id', $last->group_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => null,
+                            ]);
+                    }
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    private function CrudBankAccount(array $detail, string $employee_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['bank_id']) || empty($row['start_date'])) {
+                continue;
+            }
+
+            $data = [
+                'employee_id'   => $employee_id,
+                'bank_id'   => $row['bank_id'],
+                'account_name'   => $row['account_name'],
+                'account_number'   => $row['account_number'],
+                'start_date'   => $row['start_date'],
+                'end_date'   => $row['end_date'] == "" ? null :  $row['end_date'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+
+                    $last = DB::table('mst_employee_bank')
+                        ->where('employee_id',   $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_bank')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('bank_id', $last->bank_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
+                                'updated_at' => now(),
+                            ]);
+                    }
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_employee_bank')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_bank')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('bank_id',   $row['bank_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_employee_bank')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('bank_id',   $row['bank_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->delete();
+
+                    $last = DB::table('mst_employee_bank')
+                        ->where('employee_id', $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_bank')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('bank_id', $last->bank_id)
                             ->where('start_date', $last->start_date)
                             ->update([
                                 'end_date'   => null,

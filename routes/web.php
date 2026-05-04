@@ -59,6 +59,7 @@ Route::get('/coredata/job-grade', [App\Http\Controllers\CoreDataController::clas
 Route::get('/master/job-grade', [App\Http\Controllers\CoreDataController::class, 'getJobGradeData'])->name('coredata.getJobGradeData');
 Route::post('/master/job-grade-crud', [App\Http\Controllers\CoreDataController::class, 'CrudJobGrade'])->name('coredata.CrudJobGrade');
 
+Route::get('/master/bank', [App\Http\Controllers\CoreDataController::class, 'getBankData'])->name('coredata.getBankData');
 
 // Master Sallary Component Routes
 Route::get('/sallary-tax/allowances', [App\Http\Controllers\SallaryTaxController::class, 'allowances'])->name('sallaryTax.allowances');
@@ -180,3 +181,4 @@ Route::get('/employees/index', [App\Http\Controllers\EmployeeController::class, 
 Route::get('/employees/employees-employee-data', [App\Http\Controllers\EmployeeController::class, 'getDataEmployee'])->name('employees.getDataEmployee');
 Route::get('/employees/employees-employee-detail-data', [App\Http\Controllers\EmployeeController::class, 'getDetailEmployee'])->name('employees.getDetailEmployee');
 Route::post('/employees/employees-crud', [App\Http\Controllers\EmployeeController::class, 'CrudEmployee'])->name('employees.CrudEmployee');
+Route::get('/employees/employees-salary-join-date', [App\Http\Controllers\EmployeeController::class, 'getSalaryByJoinDate'])->name('employees.getSalaryByJoinDate');

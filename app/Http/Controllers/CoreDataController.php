@@ -713,4 +713,18 @@ class CoreDataController extends Controller
     //end of Master Data - Job Grade
 
 
+    // Master Bank 
+
+    public function getBankData(Request $request)
+    {
+        $data = DB::table('mst_bank')
+            ->select('*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('bank_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('bank_name', 'desc')->get();
+        return response()->json($data);
+    }
+    // End of master bank
 }

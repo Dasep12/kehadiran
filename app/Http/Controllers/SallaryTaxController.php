@@ -39,6 +39,11 @@ class SallaryTaxController extends Controller
             $data = $data->where('allowance_name', 'like', '%' . $request->search . '%')
                 ->orWhere('allowance_code', 'like', '%' . $request->search . '%');
         }
+
+
+        if ($request->has('basicSalary') && !empty($request->basicSalary)) {
+            $data = $data->where('basic_salary', 1);
+        }
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }

@@ -215,6 +215,19 @@
             employee_id: empId,
             nameData: "working_status"
         });
+
+        tableBasicSalary.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "basic_sallary"
+        });
+        tableBankAccount.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "bank_account"
+        });
+        tableMembership.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "membership"
+        });
     }
 </script>
 @endpush

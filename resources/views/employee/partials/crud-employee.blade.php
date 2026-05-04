@@ -101,6 +101,8 @@
 @include("employee.partials.tab.tab-crud.crud-position")
 @include("employee.partials.tab.tab-crud.crud-work-status")
 @include("employee.partials.tab.tab-crud.crud-grade")
+@include("employee.partials.tab.tab-crud.crud-basic-salary")
+@include("employee.partials.tab.tab-crud.crud-bank-account")
 
 @push('scripts')
 <script>
@@ -156,9 +158,73 @@
         });
     }
 
+    function loadAllowance() {
+        $.ajax({
+            url: '{{ route("sallaryTax.getAllowancesData") }}?basicSalary=1',
+            method: 'GET',
+            data: {
+
+            },
+            success: function(response) {
+                let options = '<option value="">Select Allowance</option>';
+                response.forEach(function(allowance) {
+                    options += `<option data-name="${allowance.allowance_name}" value="${allowance.id}">${allowance.allowance_name}</option>`;
+                });
+                $('#allowance_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching allowance data:', xhr);
+            }
+        });
+    }
+
+    function loadBasicSalary() {
+        $.ajax({
+            url: '{{ route("employees.getSalaryByJoinDate") }}',
+            method: 'GET',
+            data: {
+                join_date: $("#join_date").val()
+            },
+            success: function(response) {
+                console.log(response);
+                let options = '<option value="">Select Allowance</option>';
+                response.forEach(function(allowance) {
+                    options += `<option data-amount="${allowance.amount}" data-name="${allowance.name_group}" value="${allowance.group_id}">${allowance.name_group} -  [ ${allowance.amount} ] </option>`;
+                });
+                $('#group_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching allowance data:', xhr);
+            }
+        });
+    }
+
+    function loadBank() {
+        $.ajax({
+            url: '{{ route("coredata.getBankData") }}',
+            method: 'GET',
+            data: {},
+            success: function(response) {
+                console.log(response);
+                let options = '<option value="">Select Bank</option>';
+                response.forEach(function(allowance) {
+                    options += `<option data-name="${allowance.bank_name}" value="${allowance.bank_id}">${allowance.bank_id} -  [ ${allowance.bank_name} ] </option>`;
+                });
+                $('#bank_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching allowance data:', xhr);
+            }
+        });
+    }
+
+
     loadPosition()
     loadWorkStatus()
     loadGrade()
+    loadAllowance()
+    loadBasicSalary()
+    loadBank()
 
     function Crud(action, id) {
         document.getElementById('form-crud-employee').reset();
@@ -177,6 +243,7 @@
             $('#id_card').val(data.id_card);
         }
 
+        loadBasicSalary();
         reloadAllTables();
         switch (action) {
             case "create":
@@ -228,9 +295,11 @@
             position: JSON.stringify(tablePosition.getData()),
             workingStatus: JSON.stringify(tableWorkingStatus.getData()),
             grade: JSON.stringify(tableGrade.getData()),
+            basicSalary: JSON.stringify(tableBasicSalary.getData()),
+            bank: JSON.stringify(tableBankAccount.getData()),
             _token: '{{ csrf_token() }}'
         };
-
+        console.log(formData);
         $.ajax({
             url: url,
             method: method,
