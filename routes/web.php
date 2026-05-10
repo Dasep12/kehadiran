@@ -189,3 +189,4 @@ Route::get('/employees/employees-salary-join-date', [App\Http\Controllers\Employ
 // PAYROLL - SALARY MANUAL
 Route::get('/payroll/salary-manual', [App\Http\Controllers\PayrollController::class, 'SalaryManual'])->name('payroll.salary-manual');
 Route::post('/payroll/salary-import', [App\Http\Controllers\PayrollController::class, 'SalaryImport'])->name('payroll.salary-import');
+Route::get('/payroll/salary-import-history', [App\Http\Controllers\PayrollController::class, 'getSalaryImportHistory'])->name('payroll.getSalaryImportHistory');

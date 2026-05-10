@@ -32,7 +32,7 @@ class PayrollController extends Controller
                     'message' => 'Employee not found'
                 ], 404);
             }
-            $period_id = 1; // ambil dari request / session / active period
+            $period_id = $request->period_id; // ambil dari request / session / active period
             foreach ($salaryData as $key => $value) {
                 // hanya ambil kolom allowance_
                 if (strpos($key, 'allowance_') === 0) {
@@ -68,5 +68,19 @@ class PayrollController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getSalaryImportHistory(Request $request)
+    {
+        $data = DB::table('vw_payroll_manual')
+            ->select('*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('period_name', 'like', '%' . $request->search . '%')
+                ->orWhere('employee_name', 'like', '%' . $request->search . '%')
+                ->orWhere('allowance_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
     }
 }

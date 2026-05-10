@@ -58,9 +58,6 @@
 </div>
 
 
-
-
-</div>
 @push('scripts')
 <script>
     function loadAllowance() {
@@ -320,6 +317,12 @@
     })
 
     async function SubmitSalaryImport() {
+
+        if ($('#period_id').val() === '') {
+            alert('Please select a period before submitting the import.');
+            return;
+        }
+
         let salaryData = tableSalaryImport.getData();
         let total = salaryData.length;
         let success = 0;
@@ -381,6 +384,7 @@
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
+                    period_id: $('#period_id').val(),
                     salary_data: salaryData
                 }),
                 headers: {

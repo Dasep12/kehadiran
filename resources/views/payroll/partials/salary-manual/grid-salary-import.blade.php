@@ -5,7 +5,11 @@
              <p class="text-secondary m-0">Table description.</p>
          </div>
          <div class="col-md-auto col-sm-12">
-             <div class="ms-auto d-flex flex-wrap btn-list">
+             <select name="period_id" id="period_id" class="form-control mb-2">
+                 <option value="">Select Period</option>
+                 <!-- Options will be populated dynamically -->
+             </select>
+             <div class="ms-auto d-flex flex-wrap btn-list mb-2">
                  <div class="input-group input-group-flat w-auto">
                      <span class="input-group-text">
                          <!-- Download SVG icon from http://tabler.io/icons/icon/search -->
@@ -36,7 +40,6 @@
      </div>
      <!-- Your education content here -->
      <div id="table-salary-import"></div>
-
      <div class="row">
          <div id="importProgressWrapper" style="display:none;">
 
@@ -54,7 +57,7 @@
              </small>
 
          </div>
-         <div class="col d-flex justify-content-start mt-3">
+         <div class="col d-flex justify-content-start gap-2 mt-3">
              <input type="file" class="form-control w-10" id="importExcel" accept=".xlsx,.xls,.csv">
              <button type="button" class="btn btn-outline-primary" onclick="SubmitSalaryImport()"><i class="ti ti-upload"></i> Submit</button>
          </div>
@@ -107,6 +110,28 @@
         </button>
         `
      }
+
+     function loadPeriod() {
+         $.ajax({
+             url: "{{ route('sallaryTax.getPayPeriodsData') }}",
+             method: 'GET',
+             success: function(response) {
+                 let options = '<option value="">Select Period</option>';
+                 response.forEach(function(period) {
+                     options += `<option value="${period.period_id}">${period.period_name}</option>`;
+                 });
+                 $('#period_id').html(options);
+             },
+             error: function(xhr) {
+                 console.error('Error fetching periods:', xhr);
+             }
+         });
+     }
+
+     // Load periods when the page loads
+     $(document).ready(function() {
+         loadPeriod();
+     });
  </script>
  @endpush
 

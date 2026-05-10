@@ -16,7 +16,6 @@
 <div class="page-body">
     <div class="container-xl">
         <div class="col-12">
-
             <div class="card">
                 <div class="card-header">
                     <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
@@ -38,12 +37,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 </div>
-
 <!-- END PAGE BODY  -->
-
 @endsection
