@@ -83,4 +83,48 @@ class PayrollController extends Controller
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }
+
+    public function ProcessPayroll()
+    {
+        $data = [
+            'title' => 'Process Payroll',
+        ];
+        return view('payroll.process_payroll', $data);
+    }
+
+    public function getPayrollProcessData(Request $request)
+    {
+        $data = DB::table('vw_payroll_process')
+            ->select('*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('employee_code', 'like', '%' . $request->search . '%')
+                ->orWhere('employee_name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->has('company_id') && !empty($request->company_id)) {
+            $data = $data->where('company_id', $request->company_id);
+        }
+
+        if ($request->has('period_id') && !empty($request->period_id)) {
+            $data = $data->where('period_id', $request->period_id);
+        }
+
+        $data = $data->orderBy('employee_code')->get();
+        return response()->json($data);
+    }
+
+    public function CrudProcessPayroll(Request $request)
+    {
+        $action = $request->action;
+        $employee_id = $request->employee_id;
+        $period_id = $request->period_id;
+        try {
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -258,7 +258,7 @@ class SallaryTaxController extends Controller
         if ($request->has('search') && !empty($request->search)) {
             $data = $data->where('period_name', 'like', '%' . $request->search . '%');
         }
-        $data = $data->orderBy('created_at', 'desc')->get();
+        $data = $data->orderBy('number_month', 'asc')->get();
         return response()->json($data);
     }
 

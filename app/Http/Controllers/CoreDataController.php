@@ -32,8 +32,10 @@ class CoreDataController extends Controller
     public function getSubCompanyData(Request $request)
     {
         $data = DB::table('mst_company')
-            ->select('*')
-            ->where('group_id', $request->group_id);
+            ->select('*');
+        if ($request->has('group_id') && !empty($request->group_id)) {
+            $data = $data->where('group_id', $request->group_id);
+        }
         $data = $data->orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }

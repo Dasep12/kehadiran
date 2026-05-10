@@ -174,7 +174,7 @@
                                 </a>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="{{ route('payroll.salary-manual') }}"> Manual Input </a>
-                                    <a class="dropdown-item" href="./process-calculation.html"> Run Payroll </a>
+                                    <a class="dropdown-item" href="{{ route('payroll.process-payroll') }}"> Run Payroll </a>
                                 </div>
                             </li>
 

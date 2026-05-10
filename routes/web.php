@@ -190,3 +190,9 @@ Route::get('/employees/employees-salary-join-date', [App\Http\Controllers\Employ
 Route::get('/payroll/salary-manual', [App\Http\Controllers\PayrollController::class, 'SalaryManual'])->name('payroll.salary-manual');
 Route::post('/payroll/salary-import', [App\Http\Controllers\PayrollController::class, 'SalaryImport'])->name('payroll.salary-import');
 Route::get('/payroll/salary-import-history', [App\Http\Controllers\PayrollController::class, 'getSalaryImportHistory'])->name('payroll.getSalaryImportHistory');
+
+
+// PAYROLL - PROCESS PAYROLL
+Route::get('/payroll/process-payroll', [App\Http\Controllers\PayrollController::class, 'ProcessPayroll'])->name('payroll.process-payroll');
+Route::get('/payroll/process-payroll-data', [App\Http\Controllers\PayrollController::class, 'getPayrollProcessData'])->name('payroll.getPayrollProcessData');
+Route::post('/payroll/process-payroll-crud', [App\Http\Controllers\PayrollController::class, 'CrudProcessPayroll'])->name('payroll.CrudProcessPayroll');
