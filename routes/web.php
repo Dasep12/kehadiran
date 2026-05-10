@@ -182,3 +182,10 @@ Route::get('/employees/employees-employee-data', [App\Http\Controllers\EmployeeC
 Route::get('/employees/employees-employee-detail-data', [App\Http\Controllers\EmployeeController::class, 'getDetailEmployee'])->name('employees.getDetailEmployee');
 Route::post('/employees/employees-crud', [App\Http\Controllers\EmployeeController::class, 'CrudEmployee'])->name('employees.CrudEmployee');
 Route::get('/employees/employees-salary-join-date', [App\Http\Controllers\EmployeeController::class, 'getSalaryByJoinDate'])->name('employees.getSalaryByJoinDate');
+
+
+
+
+// PAYROLL - SALARY MANUAL
+Route::get('/payroll/salary-manual', [App\Http\Controllers\PayrollController::class, 'SalaryManual'])->name('payroll.salary-manual');
+Route::post('/payroll/salary-import', [App\Http\Controllers\PayrollController::class, 'SalaryImport'])->name('payroll.salary-import');
