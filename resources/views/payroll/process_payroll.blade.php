@@ -54,7 +54,7 @@
 
                     <div class="row">
                         <div class="col-12 mt-3 d-flex justify-content-start gap-2">
-                            <button class="btn btn-primary" type="button" onclick="Crud('create','*')"><i class="ti ti-refresh"></i> Process Calculation </button>
+                            <button class="btn btn-primary" type="button" onclick="CrudCalucaltion()"><i class="ti ti-refresh"></i> Process Calculation </button>
                             <div class="dropdown">
                                 <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More Process</a>
                                 <div class="dropdown-menu">
@@ -85,6 +85,7 @@
                     options += `<option value="${period.period_id}">${period.period_name}</option>`;
                 });
                 $('#period_id').html(options);
+                $('#period_process_id').html(options);
             },
             error: function(xhr) {
                 console.error('Error fetching periods:', xhr);
@@ -97,12 +98,12 @@
             url: "{{ route('coredata.getSubCompanyData') }}",
             method: 'GET',
             success: function(response) {
-                console.log('Companies:', response);
                 let options = '<option value="">Select Company</option>';
                 response.forEach(function(company) {
                     options += `<option value="${company.company_id}">${company.company_name}</option>`;
                 });
                 $('#company_id').html(options);
+                $('#company_process_id').html(options);
             },
             error: function(xhr) {
                 console.error('Error fetching companies:', xhr);
@@ -121,18 +122,14 @@
     }
 
     var table = new Tabulator("#process-payroll-table", {
-
         ajaxURL: "{{ route('payroll.getPayrollProcessData') }}",
         ajaxConfig: "GET",
-
         layout: "fitColumns",
         responsiveLayout: false,
         height: "450px",
-
         ajaxParams: {
             search: "",
         },
-
         // WAJIB ADA
         groupBy: "employee_code",
         groupStartOpen: true,
@@ -141,15 +138,13 @@
             let gross = 0;
             let netIncome = 0;
             let deduction = 0;
-
             data.forEach(item => {
                 let amount = parseFloat(item.amount) || 0;
-                // BRUTO
+                // GROSS INCOME (emp + comp income)
                 if (
                     item.type == '+' &&
                     (item.calc_for == 'emp' || item.calc_for == 'comp')
                 ) {
-
                     gross += amount;
                 }
 
@@ -158,7 +153,6 @@
                     item.type == '+' &&
                     item.calc_for == 'emp'
                 ) {
-
                     netIncome += amount;
                 }
 
@@ -167,21 +161,13 @@
                     item.type == '-' &&
                     item.calc_for == 'emp'
                 ) {
-
                     deduction += amount;
                 }
             });
 
             let takeHomePay = netIncome - deduction;
-
-            return `
-
-        <div style="
-            padding:10px;
-            background:#f8f9fa;
-            border-radius:6px;
-            width:100%;
-        ">
+            return `<div style="padding:10px; background:#f8f9fa;
+            border-radius:6px;width:100%;">
 
             <div class="fw-bold mb-1">
                 ${value} - ${employeeName}
@@ -190,19 +176,13 @@
                 </span>
             </div>
 
-            <div style="
-                display:flex;
-                gap:30px;
-                font-size:13px;
-                margin-top:5px;
-                flex-wrap:wrap;
-            ">
+            <div style="display:flex;gap:30px;font-size:13px;margin-top:5px;
+                flex-wrap:wrap;">
 
                 <div>
                     <span class="fw-bold text-dark">
                         Gross :
                     </span>
-
                     Rp ${formatRupiah(gross)}
                 </div>
 
@@ -210,7 +190,6 @@
                     <span class="fw-bold text-success">
                         Net Income :
                     </span>
-
                     Rp ${formatRupiah(netIncome)}
                 </div>
 
@@ -229,11 +208,8 @@
 
                     Rp ${formatRupiah(takeHomePay)}
                 </div>
-
             </div>
-
-        </div>
-    `;
+        </div>`;
         },
 
         columns: [{

@@ -116,11 +116,26 @@ class PayrollController extends Controller
 
     public function CrudProcessPayroll(Request $request)
     {
-        $action = $request->action;
         $employee_id = $request->employee_id;
         $period_id = $request->period_id;
         try {
+            DB::beginTransaction();
+
+            DB::statement(
+                "CALL sp_generate_payroll(?, ?)",
+                [
+                    $period_id,
+                    $employee_id
+                ]
+            );
+
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Payroll processed successfully'
+            ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
