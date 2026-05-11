@@ -18,17 +18,6 @@
                                 <!-- Options will be populated dynamically -->
                             </select>
                         </div>
-                        <div class="ms-auto d-flex flex-wrap btn-list">
-                            <div class="input-group input-group-flat w-auto">
-                                <span class="input-group-text">
-                                    <i class="ti ti-user"></i>
-                                </span>
-                                <input placeholder="Search Here..." id="search-input" type="text" class="form-control" autocomplete="off">
-                            </div>
-
-                            <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="reloadTable()" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Refresh </button>
-
-                        </div>
                     </div>
 
                     <div class="row">
@@ -54,7 +43,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
-                    <button type="button" onclick="SubmitCalculationProcess()" class="btn btn-primary">Process Calculation</button>
+                    <button type="button" onclick="SubmitCalculationProcess('unpost')" class="btn btn-danger">Unpost Calculation <i class="ti ti-trash mr-2"></i></button>
+                    <button type="button" onclick="SubmitCalculationProcess('process')" class="btn btn-primary">Process Calculation <i class="ti ti-dot"></i></button>
                 </div>
             </div>
         </div>
@@ -95,6 +85,7 @@
                 title: "Name",
                 field: "employee_name",
                 headerHozAlign: "center",
+                headerFilter: "input", // 🔥 search di header
                 frozen: true,
                 formatter: function(cell) {
                     var data = cell.getData();
@@ -117,9 +108,16 @@
             }, {
                 title: "No Regis",
                 field: "employee_code",
+                headerFilter: "input", // 🔥 search di header
             }, {
                 title: "Company",
                 field: "company_name",
+                headerFilter: "list",
+                headerFilterParams: {
+                    valuesLookup: true,
+                    autocomplete: true,
+                    clearable: true,
+                }
             },
             {
                 title: "Organization",
@@ -165,32 +163,47 @@
                 formatter: 'html',
                 field: 'status_process',
                 hozAlign: 'center',
+                width: 255,
             }
         ],
     });
 
-    async function SubmitCalculationProcess() {
+    async function SubmitCalculationProcess(action) {
 
         if ($('#period_process_id').val() === '') {
             alert('Please select a period before submitting the import.');
             return;
         }
 
-        let EmployeeList = tableEmployeePayroll.getData();
-        let total = EmployeeList.length;
+        if (action === 'unpost') {
+            if (!confirm('Are you sure you want to unpost the calculation? This action cannot be undone.')) {
+                return;
+            }
+        }
+        // let EmployeeList = tableEmployeePayroll.getData();
+        let employeeIds = tableEmployeePayroll.getSelectedRows().map(row => {
+            return row.getData().employee_id;
+        });
+
+        if (employeeIds.length === 0) {
+            alert('Please select at least one employee to process.');
+            return;
+        }
+
+        let total = employeeIds.length;
         let success = 0;
         // tampilkan progress area
         $("#importProgressPayrollWrapper").show();
         for (let i = 0; i < total; i++) {
-            let item = EmployeeList[i];
+            let employee_id = employeeIds[i];
             // update row jadi loading
-            updateRowStatus(item.employee_id,
+            updateRowStatus(employee_id,
                 "<span class='badge bg-warning text-dark'>Uploading...</span>"
             );
             try {
-                await sendAjaxCalculationProcess(item);
+                await sendAjaxCalculationProcess(employee_id, action);
                 success++;
-                updateRowStatus(item.employee_id,
+                updateRowStatus(employee_id,
                     "<span class='badge bg-success text-white'>Success</span>"
                 );
             } catch (err) {
@@ -201,7 +214,7 @@
                     errorMessage = err.statusText;
                 }
                 updateRowStatus(
-                    item.employee_id,
+                    item,
                     `<span class='badge bg-danger text-white'>Failed : ${errorMessage}</span>`
                 );
                 console.error(errorMessage);
@@ -218,10 +231,10 @@
         showAlert(`Import selesai. Success ${success}/${total}`, 'success');
     }
 
-    function updateRowStatus(employeeId, statusHtml) {
+    function updateRowStatus(employeeData, statusHtml) {
         let rowComponent = tableEmployeePayroll.getRows().find(r => {
             let d = r.getData();
-            return d.employee_id === employeeId;
+            return d.employee_id === employeeData;
         });
         if (rowComponent) {
             rowComponent.update({
@@ -230,7 +243,7 @@
         }
     }
 
-    function sendAjaxCalculationProcess(salaryData) {
+    function sendAjaxCalculationProcess(employee_id, action) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: '{{ route("payroll.CrudProcessPayroll") }}',
@@ -238,7 +251,8 @@
                 contentType: 'application/json',
                 data: JSON.stringify({
                     period_id: $('#period_process_id').val(),
-                    employee_id: salaryData.employee_id
+                    employee_id: employee_id,
+                    action: action
                 }),
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'

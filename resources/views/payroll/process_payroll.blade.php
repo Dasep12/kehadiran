@@ -51,15 +51,15 @@
                 <div class="card-body">
                     <!-- Your allowances content here -->
                     <div class="grid-tables-tabulator" id="process-payroll-table"></div>
-
+                    <div id="download-status" class="mt-1"></div>
                     <div class="row">
                         <div class="col-12 mt-3 d-flex justify-content-start gap-2">
-                            <button class="btn btn-primary" type="button" onclick="CrudCalucaltion()"><i class="ti ti-refresh"></i> Process Calculation </button>
+                            <button class="btn btn-primary" type="button" onclick="CrudCalucaltion()">Process Calculation <i class="ti ti-refresh mt-1 mr-2"></i> </button>
                             <div class="dropdown">
                                 <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More Process</a>
                                 <div class="dropdown-menu">
                                     <a id="btnExportExcel" class="dropdown-item" href="#">Close Payroll</a>
-                                    <a id="btnExportExcel" class="dropdown-item" href="#">Export Data</a>
+                                    <a id="btn-download" class="dropdown-item" href="#">Export Data</a>
                                 </div>
                             </div>
                         </div>
@@ -279,6 +279,109 @@
             period_id: period_id,
         });
     }
+
+    $('#btn-download').on('click', function() {
+        if ($("#period_id").val() == '') {
+            alert('Please select  period first');
+            $("#period_id").focus();
+            return;
+        }
+        let btn = $(this);
+
+        btn.prop('disabled', true);
+
+        $('#download-status').html(`
+        <div class="alert alert-info d-flex align-items-center gap-2">
+            <div class="spinner-border spinner-border-sm"></div>
+            <span>Sedang generate file payroll...</span>
+        </div>
+    `);
+        $.ajax({
+            url: '{{ route("payroll.export") }}',
+            type: 'POST',
+            data: {
+                period_id: $('#period_id').val(),
+                company_id: $('#company_id').val(),
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(res) {
+                let exportId = res.export_id;
+                let interval = setInterval(function() {
+                    $.ajax({
+                        url: '{{ route("payroll.export.status", ":id") }}'
+                            .replace(':id', exportId),
+                        type: 'GET',
+                        success: function(status) {
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | COMPLETED
+                            |--------------------------------------------------------------------------
+                            */
+                            if (status.status === 'completed') {
+                                clearInterval(interval);
+                                btn.prop('disabled', false);
+                                $('#download-status').html(`
+                                <div class="alert alert-success d-flex justify-content-between align-items-center">
+                                    <div>
+                                        Export payroll berhasil dibuat
+                                    </div>
+
+                                    <a href="${status.download_url}" 
+                                       class="btn btn-success btn-sm">
+                                        Download
+                                    </a>
+                                </div>
+                            `);
+                                // Optional auto download
+                                window.open(status.download_url, '_blank');
+                            }
+
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | FAILED
+                            |--------------------------------------------------------------------------
+                            */
+                            if (status.status === 'failed') {
+                                clearInterval(interval);
+                                btn.prop('disabled', false);
+                                $('#download-status').html(`
+                                <div class="alert alert-danger">
+                                    ${status.message ?? 'Export gagal'}
+                                </div>
+                            `);
+                            }
+                        },
+                        error: function() {
+                            clearInterval(interval);
+                            btn.prop('disabled', false);
+                            $('#download-status').html(`
+                            <div class="alert alert-danger">
+                                Gagal mengecek status export
+                            </div>
+                        `);
+                        }
+                    });
+                }, 2000);
+            },
+            error: function(xhr) {
+                btn.prop('disabled', false);
+                let message = 'Terjadi kesalahan';
+                if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                }
+                $('#download-status').html(`
+                <div class="alert alert-danger">
+                    ${message}
+                </div>
+            `);
+
+            }
+
+        });
+
+    });
 </script>
 @endpush
 

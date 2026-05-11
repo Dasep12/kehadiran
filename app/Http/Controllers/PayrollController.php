@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GeneratePayrollExportJob;
+use App\Models\PayrollExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -120,14 +122,31 @@ class PayrollController extends Controller
         $period_id = $request->period_id;
         try {
             DB::beginTransaction();
+            switch ($request->action) {
+                case 'process':
+                    // call sp_generate_payroll
+                    DB::statement(
+                        "CALL sp_generate_payroll(?, ?)",
+                        [
+                            $period_id,
+                            $employee_id
+                        ]
+                    );
+                    break;
+                case 'unpost':
+                    // call sp_unpost_payroll
+                    DB::statement(
+                        "CALL sp_unpost_payroll(?, ?)",
+                        [
+                            $period_id,
+                            $employee_id
+                        ]
+                    );
+                    break;
+                default:
+                    throw new \Exception('Invalid action');
+            }
 
-            DB::statement(
-                "CALL sp_generate_payroll(?, ?)",
-                [
-                    $period_id,
-                    $employee_id
-                ]
-            );
 
             DB::commit();
             return response()->json([
@@ -141,5 +160,33 @@ class PayrollController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $export = PayrollExport::create([
+            'period_id' => $request->period_id,
+            'company_id' => $request->company_id,
+            'status' => 'pending',
+            'created_by' => auth()->id()
+        ]);
+        GeneratePayrollExportJob::dispatch($export->id);
+
+        return response()->json([
+            'success' => true,
+            'export_id' => $export->id
+        ]);
+    }
+
+    public function exportStatus($id)
+    {
+        $export = PayrollExport::findOrFail($id);
+        return response()->json([
+            'status' => $export->status,
+            'download_url' => $export->file_path
+                ? asset('storage/' . $export->file_path)
+                : null,
+            'message' => $export->message
+        ]);
     }
 }

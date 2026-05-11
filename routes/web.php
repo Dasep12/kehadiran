@@ -196,3 +196,15 @@ Route::get('/payroll/salary-import-history', [App\Http\Controllers\PayrollContro
 Route::get('/payroll/process-payroll', [App\Http\Controllers\PayrollController::class, 'ProcessPayroll'])->name('payroll.process-payroll');
 Route::get('/payroll/process-payroll-data', [App\Http\Controllers\PayrollController::class, 'getPayrollProcessData'])->name('payroll.getPayrollProcessData');
 Route::post('/payroll/process-payroll-crud', [App\Http\Controllers\PayrollController::class, 'CrudProcessPayroll'])->name('payroll.CrudProcessPayroll');
+
+// Start export
+Route::post('/export', [
+    App\Http\Controllers\PayrollController::class,
+    'export'
+])->name('payroll.export');
+
+// Check export status
+Route::get('/export-status/{id}', [
+    App\Http\Controllers\PayrollController::class,
+    'exportStatus'
+])->name('payroll.export.status');
