@@ -189,4 +189,39 @@ class PayrollController extends Controller
             'message' => $export->message
         ]);
     }
+
+
+    public function closePayroll(Request $request)
+    {
+        $period_id = $request->period_id;
+        dd($period_id);
+        try {
+            DB::beginTransaction();
+            DB::table('payroll_period')
+                ->where('period_id', $period_id)
+                ->update(['is_closed' => 1]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Payroll closed successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function checkPayrollStatus(Request $request)
+    {
+        $period_id = $request->period_id;
+        $status = DB::table('payroll_period')
+            ->where('period_id', $period_id)
+            ->value('is_closed');
+        return response()->json([
+            'is_closed' => $status
+        ]);
+    }
 }

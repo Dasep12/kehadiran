@@ -228,6 +228,26 @@
             employee_id: empId,
             nameData: "membership"
         });
+
+        tablePTKP.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "ptkp"
+        });
+
+        tableEducation.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "education"
+        });
+
+        tableOvertime.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "overtime"
+        });
+
+        tableFamily.setData("{{ route('employees.getDetailEmployee') }}", {
+            employee_id: empId,
+            nameData: "family"
+        });
     }
 </script>
 @endpush

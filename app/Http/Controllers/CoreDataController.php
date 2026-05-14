@@ -729,4 +729,18 @@ class CoreDataController extends Controller
         return response()->json($data);
     }
     // End of master bank
+
+    // Master Family
+    public function getFamilyData(Request $request)
+    {
+        $data = DB::table('mst_family')
+            ->select('*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('relation_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('created_at', 'asc')->get();
+        return response()->json($data);
+    }
+    // End of master family
 }

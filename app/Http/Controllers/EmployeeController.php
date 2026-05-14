@@ -105,7 +105,13 @@ class EmployeeController extends Controller
                     ->where('employee_id', $employeeId)
                     ->orderBy('start_date', 'desc');
                 break;
-            // Tambahkan case lainnya di sini...
+            case "family":
+                $query = DB::table('vw_employee_family')
+                    ->select('*')
+                    ->where('employee_id', $employeeId)
+                    ->orderBy('created_at', 'desc');
+                break;
+
 
             default:
                 return response()->json([], 200);
@@ -196,31 +202,6 @@ class EmployeeController extends Controller
                     break;
             }
 
-            // 🔥 Decode jika detail dikirim sebagai JSON string
-            // $organization = $request->organization;
-            // $position = $request->position;
-            // $WorkingStatus = $request->workingStatus;
-            // if (is_string($organization)) {
-            //     $organization = json_decode($organization, true);
-            // }
-
-            // if (is_string($position)) {
-            //     $position = json_decode($position, true);
-            // }
-            // if (is_string($WorkingStatus)) {
-            //     $WorkingStatus = json_decode($WorkingStatus, true);
-            // }
-            // // 🔥 Proses detail hanya jika ada data
-            // if (!empty($organization) && is_array($organization)) {
-            //     self::CrudOrganization($organization, $request->employee_id);
-            // }
-            // if (!empty($position) && is_array($position)) {
-            //     self::CrudPosition($position, $request->employee_id);
-            // }
-
-            // if (!empty($WorkingStatus) && is_array($WorkingStatus)) {
-            //     self::CrudWorkingStatus($WorkingStatus, $request->employee_id);
-            // }
             // Mapping request → handler
             $details = [
                 'organization'   => 'CrudOrganization',
@@ -229,6 +210,10 @@ class EmployeeController extends Controller
                 'grade'          => 'CrudGrade',
                 'basicSalary'    => 'CrudBasicSalary',
                 'bank'    => 'CrudBankAccount',
+                'ptkp'    => 'CrudPTKP',
+                'education' => 'CrudEducation',
+                'overtime' => 'CrudOvertimeGroup',
+                'family' => 'CrudFamily',
             ];
 
             foreach ($details as $key => $method) {
@@ -778,6 +763,327 @@ class EmployeeController extends Controller
                                 'end_date'   => null,
                             ]);
                     }
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    private function CrudPTKP(array $detail, string $employee_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['ptkp_code']) || empty($row['start_date'])) {
+                continue;
+            }
+
+            $data = [
+                'employee_id'   => $employee_id,
+                'ptkp_code'   => $row['ptkp_code'],
+                'start_date'   => $row['start_date'],
+                'end_date'   => $row['end_date'] == "" ? null :  $row['end_date'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+
+                    $last = DB::table('mst_employee_ptkp')
+                        ->where('employee_id',   $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_ptkp')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('ptkp_code', $last->ptkp_code)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
+                                'updated_at' => now(),
+                            ]);
+                    }
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_employee_ptkp')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_ptkp')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('ptkp_code',   $row['ptkp_code'])
+                        ->where('start_date',   $row['start_date'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_employee_ptkp')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('ptkp_code',   $row['ptkp_code'])
+                        ->where('start_date',   $row['start_date'])
+                        ->delete();
+
+                    $last = DB::table('mst_employee_ptkp')
+                        ->where('employee_id', $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_ptkp')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('ptkp_code', $last->ptkp_code)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => null,
+                            ]);
+                    }
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    private function CrudEducation(array $detail, string $employee_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['education_id']) || empty($row['start_date'])) {
+                continue;
+            }
+
+            $data = [
+                'employee_id'   => $employee_id,
+                'education_id'   => $row['education_id'],
+                'name_institution'   => $row['name_institution'],
+                'major'   => $row['major'],
+                'gpa'   => $row['gpa'],
+                'start_date'   => $row['start_date'],
+                'end_date'   => $row['end_date'] == "" ? null :  $row['end_date'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+
+                    $last = DB::table('mst_employee_education')
+                        ->where('employee_id',   $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_education')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('education_id', $last->education_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
+                                'updated_at' => now(),
+                            ]);
+                    }
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_employee_education')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_education')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('education_id',   $row['education_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_employee_education')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('education_id',   $row['education_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->delete();
+
+                    $last = DB::table('mst_employee_education')
+                        ->where('employee_id', $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_education')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('education_id', $last->education_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => null,
+                            ]);
+                    }
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    private function CrudOvertimeGroup(array $detail, string $employee_id)
+    {
+
+        foreach ($detail as $row) {
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['group_id']) || empty($row['start_date'])) {
+                continue;
+            }
+
+            $data = [
+                'employee_id'   => $employee_id,
+                'group_id'   => $row['group_id'],
+                'start_date'   => $row['start_date'],
+                'end_date'   => $row['end_date'] == "" ? null :  $row['end_date'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+
+                    $last = DB::table('mst_employee_overtime_group')
+                        ->where('employee_id',   $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+                    if ($last) {
+                        DB::table('mst_employee_overtime_group')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('group_id', $last->group_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
+                                'updated_at' => now(),
+                            ]);
+                    }
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_employee_overtime_group')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_overtime_group')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('group_id',   $row['group_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_employee_overtime_group')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('group_id',   $row['group_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->delete();
+
+                    $last = DB::table('mst_employee_overtime_group')
+                        ->where('employee_id', $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_overtime_group')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('group_id', $last->group_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => null,
+                            ]);
+                    }
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
+    private function CrudFamily(array $detail, string $employee_id)
+    {
+
+        foreach ($detail as $row) {
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['family_id'])) {
+                continue;
+            }
+
+            $data = [
+                'employee_id'   => $employee_id,
+                'family_id'   => $row['family_id'],
+                'name_family'   => $row['name_family'],
+                'born_date'   => $row['born_date'],
+                'born_place'   => $row['born_place'],
+                'contact'   => $row['contact'],
+                'gender'   => $row['gender'],
+                'address'   => $row['address'],
+                'id_card'   => $row['id_card'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+                    DB::table('mst_employee_family')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_family')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('family_id',   $row['family_id'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_employee_family')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('family_id',   $row['family_id'])
+                        ->delete();
                     break;
 
                 default:

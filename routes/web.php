@@ -34,6 +34,10 @@ Route::get('/coredata/work-status', [App\Http\Controllers\CoreDataController::cl
 Route::get('/master/work-status', [App\Http\Controllers\CoreDataController::class, 'getWorkStatusData'])->name('coredata.getWorkStatusData');
 Route::post('/master/work-status-crud', [App\Http\Controllers\CoreDataController::class, 'CrudWorkStatus'])->name('coredata.CrudWorkStatus');
 
+// Master Family
+// Route::get('/master/family', [App\Http\Controllers\CoreDataController::class, 'family'])->name('coredata.family');
+Route::get('/master/family-data', [App\Http\Controllers\CoreDataController::class, 'getFamilyData'])->name('coredata.getFamilyData');
+
 // Master Position Routes
 Route::get('/coredata/position', [App\Http\Controllers\CoreDataController::class, 'position'])->name('coredata.position');
 Route::get('/master/position-employee', [App\Http\Controllers\CoreDataController::class, 'getPositionEmployee'])->name('coredata.getPositionEmployee');
@@ -196,15 +200,7 @@ Route::get('/payroll/salary-import-history', [App\Http\Controllers\PayrollContro
 Route::get('/payroll/process-payroll', [App\Http\Controllers\PayrollController::class, 'ProcessPayroll'])->name('payroll.process-payroll');
 Route::get('/payroll/process-payroll-data', [App\Http\Controllers\PayrollController::class, 'getPayrollProcessData'])->name('payroll.getPayrollProcessData');
 Route::post('/payroll/process-payroll-crud', [App\Http\Controllers\PayrollController::class, 'CrudProcessPayroll'])->name('payroll.CrudProcessPayroll');
-
-// Start export
-Route::post('/export', [
-    App\Http\Controllers\PayrollController::class,
-    'export'
-])->name('payroll.export');
-
-// Check export status
-Route::get('/export-status/{id}', [
-    App\Http\Controllers\PayrollController::class,
-    'exportStatus'
-])->name('payroll.export.status');
+Route::post('/export', [App\Http\Controllers\PayrollController::class, 'export'])->name('payroll.export');
+Route::get('/export-status/{id}', [App\Http\Controllers\PayrollController::class, 'exportStatus'])->name('payroll.export.status');
+Route::post('/payroll/close-period', [App\Http\Controllers\PayrollController::class, 'closePayroll'])->name('payroll.closePayroll');
+Route::get('/payroll/close-period-status', [App\Http\Controllers\PayrollController::class, 'checkPayrollStatus'])->name('payroll.checkPayrollStatus');

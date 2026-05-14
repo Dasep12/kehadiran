@@ -58,7 +58,7 @@
                             <div class="dropdown">
                                 <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More Process</a>
                                 <div class="dropdown-menu">
-                                    <a id="btnExportExcel" class="dropdown-item" href="#">Close Payroll</a>
+                                    <a id="btn-close-payroll" class="dropdown-item" href="#">Close Payroll</a>
                                     <a id="btn-download" class="dropdown-item" href="#">Export Data</a>
                                 </div>
                             </div>
@@ -129,6 +129,7 @@
         height: "450px",
         ajaxParams: {
             search: "",
+            period_id: $('#period_id').val() == '' ? '*' : $('#period_id').val(),
         },
         // WAJIB ADA
         groupBy: "employee_code",
@@ -382,6 +383,36 @@
         });
 
     });
+    $("#btn-close-payroll").on('click', function() {
+        if ($("#period_id").val() == '') {
+            alert('Please select  period first');
+            $("#period_id").focus();
+            return;
+        }
+
+        if (!confirm('Are you sure you want to close the payroll for this period? This action cannot be undone.')) {
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("payroll.closePayroll") }}',
+            type: 'POST',
+            data: {
+                period_id: $('#period_id').val(),
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(res) {
+                alert(res.message);
+            },
+            error: function(xhr) {
+                let message = 'Terjadi kesalahan';
+                if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                }
+                alert(message);
+            }
+        });
+    })
 </script>
 @endpush
 

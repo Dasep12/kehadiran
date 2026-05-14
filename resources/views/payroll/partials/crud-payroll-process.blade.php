@@ -43,8 +43,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
-                    <button type="button" onclick="SubmitCalculationProcess('unpost')" class="btn btn-danger">Unpost Calculation <i class="ti ti-trash mr-2"></i></button>
-                    <button type="button" onclick="SubmitCalculationProcess('process')" class="btn btn-primary">Process Calculation <i class="ti ti-dot"></i></button>
+                    <button type="button" id="unpost-btn" onclick="SubmitCalculationProcess('unpost')" class="btn btn-danger">Unpost Calculation <i class="ti ti-trash mr-2"></i></button>
+                    <button type="button" id="process-btn" onclick="SubmitCalculationProcess('process')" class="btn btn-primary">Process Calculation <i class="ti ti-dot"></i></button>
                 </div>
             </div>
         </div>
@@ -55,6 +55,40 @@
     function CrudCalucaltion() {
         $("#modal-calculation-process").modal('show');
     }
+
+    function checkPayrollStatus() {
+        if ($("#period_process_id").val() == '') {
+            alert('Please select  period first');
+            $("#period_process_id").focus();
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("payroll.checkPayrollStatus") }}',
+            type: 'GET',
+            data: {
+                period_id: $('#period_process_id').val(),
+            },
+            success: function(res) {
+                if (res.is_closed) {
+                    alert('Payroll is closed. You cannot process the payroll.');
+                }
+                $('#process-btn').prop('disabled', res.is_closed);
+                $('#unpost-btn').prop('disabled', res.is_closed);
+            },
+            error: function(xhr) {
+                let message = 'Terjadi kesalahan';
+                if (xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                }
+                alert(message);
+            }
+        });
+    }
+
+    $("#period_process_id").on('change', function() {
+        checkPayrollStatus();
+    });
 
     var tableEmployeePayroll = new Tabulator("#employee-payroll-table", {
         ajaxURL: "{{ route('employees.getDataEmployee') }}", // endpoint Laravel

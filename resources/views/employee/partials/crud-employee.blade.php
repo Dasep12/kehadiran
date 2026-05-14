@@ -103,7 +103,10 @@
 @include("employee.partials.tab.tab-crud.crud-grade")
 @include("employee.partials.tab.tab-crud.crud-basic-salary")
 @include("employee.partials.tab.tab-crud.crud-bank-account")
-
+@include("employee.partials.tab.tab-crud.crud-ptkp")
+@include("employee.partials.tab.tab-crud.crud-education")
+@include("employee.partials.tab.tab-crud.crud-overtime-group")
+@include("employee.partials.tab.tab-crud.crud-family")
 @push('scripts')
 <script>
     function loadPosition() {
@@ -115,7 +118,6 @@
                 response.forEach(function(position) {
                     options += `<option data-name="${position.position_name}" value="${position.id}">${position.position_name}</option>`;
                 });
-                console.log(response)
                 $('#position_id').html(options);
             },
             error: function(xhr) {
@@ -186,7 +188,6 @@
                 join_date: $("#join_date").val()
             },
             success: function(response) {
-                console.log(response);
                 let options = '<option value="">Select Allowance</option>';
                 response.forEach(function(allowance) {
                     options += `<option data-amount="${allowance.amount}" data-name="${allowance.name_group}" value="${allowance.group_id}">${allowance.name_group} -  [ ${allowance.amount} ] </option>`;
@@ -205,7 +206,6 @@
             method: 'GET',
             data: {},
             success: function(response) {
-                console.log(response);
                 let options = '<option value="">Select Bank</option>';
                 response.forEach(function(allowance) {
                     options += `<option data-name="${allowance.bank_name}" value="${allowance.bank_id}">${allowance.bank_id} -  [ ${allowance.bank_name} ] </option>`;
@@ -218,6 +218,77 @@
         });
     }
 
+    function loadPTKP() {
+        $.ajax({
+            url: '{{ route("sallaryTax.getTaxPtkpData") }}',
+            method: 'GET',
+            data: {},
+            success: function(response) {
+                let options = '<option value="">Select PTKP Status</option>';
+                response.forEach(function(ptkp) {
+                    options += `<option data-name="${ptkp.ptkp_code}" value="${ptkp.ptkp_code}">${ptkp.ptkp_code} -  [ ${ptkp.description} ] </option>`;
+                });
+                $('#ptkp_code').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching allowance data:', xhr);
+            }
+        });
+    }
+
+    function loadEducation() {
+        $.ajax({
+            url: '{{ route("coredata.getEducationData") }}',
+            method: 'GET',
+            success: function(response) {
+                let options = '<option value="">Select Education</option>';
+                response.forEach(function(education) {
+                    options += `<option data-name="${education.education_name}" value="${education.id}">${education.education_name}</option>`;
+                });
+                $('#education_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching education data:', xhr);
+            }
+        });
+    }
+
+    function loadOvertimeGroup() {
+        $.ajax({
+            url: '{{ route("worktime.getOvertimeGroupData") }}',
+            method: 'GET',
+            success: function(response) {
+                console.log(response);
+                let options = '<option value="">Select Overtime Group</option>';
+                response.forEach(function(overtimeGroup) {
+                    options += `<option data-name="${overtimeGroup.group_name}" value="${overtimeGroup.id}">${overtimeGroup.group_name}</option>`;
+                });
+                $('#group_overtime_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching overtime group data:', xhr);
+            }
+        });
+    }
+
+    function loadFamily() {
+        $.ajax({
+            url: '{{ route("coredata.getFamilyData") }}',
+            method: 'GET',
+            success: function(response) {
+                console.log(response);
+                let options = '<option value="">Select Family</option>';
+                response.forEach(function(family) {
+                    options += `<option data-name="${family.relation_name}" value="${family.id}">${family.relation_name}</option>`;
+                });
+                $('#family_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching family data:', xhr);
+            }
+        });
+    }
+
 
     loadPosition()
     loadWorkStatus()
@@ -225,6 +296,10 @@
     loadAllowance()
     loadBasicSalary()
     loadBank()
+    loadPTKP()
+    loadEducation()
+    loadOvertimeGroup()
+    loadFamily()
 
     function Crud(action, id) {
         document.getElementById('form-crud-employee').reset();
@@ -297,6 +372,10 @@
             grade: JSON.stringify(tableGrade.getData()),
             basicSalary: JSON.stringify(tableBasicSalary.getData()),
             bank: JSON.stringify(tableBankAccount.getData()),
+            ptkp: JSON.stringify(tablePTKP.getData()),
+            education: JSON.stringify(tableEducation.getData()),
+            overtime: JSON.stringify(tableOvertime.getData()),
+            family: JSON.stringify(tableFamily.getData()),
             _token: '{{ csrf_token() }}'
         };
         console.log(formData);
