@@ -93,7 +93,7 @@
                                     <span class="nav-link-title"> Employees </span>
                                 </a>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="./import-employee.html"> Import Employees </a>
+                                    <a class="dropdown-item" href="{{ route('employees.importEmployee') }}"> Import Employees </a>
                                     <a class="dropdown-item" href="{{ route('employees.index') }}"> Employee List </a>
                                 </div>
                             </li>

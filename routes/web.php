@@ -187,6 +187,10 @@ Route::get('/employees/employees-employee-detail-data', [App\Http\Controllers\Em
 Route::post('/employees/employees-crud', [App\Http\Controllers\EmployeeController::class, 'CrudEmployee'])->name('employees.CrudEmployee');
 Route::get('/employees/employees-salary-join-date', [App\Http\Controllers\EmployeeController::class, 'getSalaryByJoinDate'])->name('employees.getSalaryByJoinDate');
 
+// Employee - Import Employee
+Route::get('/employees/import-employee', [App\Http\Controllers\EmployeeController::class, 'importEmployee'])->name('employees.importEmployee');
+Route::get('/employees/import-employee-format', [App\Http\Controllers\EmployeeController::class, 'downloadFormatEmployeeImport'])->name('employees.import.downloadFormat');
+Route::post('/employees/submit-import-employee', [App\Http\Controllers\EmployeeController::class, 'submitImportNewEmployee'])->name('employees.import.submit');
 
 
 

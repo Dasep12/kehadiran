@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Exports\EmployeeFormatForImport;
+use Exception;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -1091,5 +1094,377 @@ class EmployeeController extends Controller
                     break;
             }
         }
+    }
+
+    public function importEmployee()
+    {
+        $data = [
+            'title' => 'Imprort Employee',
+        ];
+        return view('employee.import-employee', $data);
+    }
+
+    public function downloadFormatEmployeeImport()
+    {
+        return Excel::download(new EmployeeFormatForImport, 'employee_format.xlsx');
+    }
+
+    public function submitImportNewEmployee(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $import = $request->employee_data;
+
+            $errors = [];
+
+            /*
+        |--------------------------------------------------------------------------
+        | EMPLOYEE DATA
+        |--------------------------------------------------------------------------
+        */
+
+            $employee_code       = $import['employee_code'] ?? null;
+            $employee_name       = $import['employee_name'] ?? null;
+            $email               = $import['email'] ?? null;
+            $phone               = $import['phone'] ?? null;
+            $gender              = $import['gender'] ?? null;
+            $join_date           = $import['join_date'] ?? null;
+            $id_card             = $import['id_card'] ?? null;
+            $npwp                = $import['npwp'] ?? null;
+
+            $grade_name          = $import['grade_name'] ?? null;
+            $position_name       = $import['position_name'] ?? null;
+            $working_name        = $import['working_name'] ?? null;
+            $ptkp_code           = $import['ptkp_code'] ?? null;
+            $education_name      = $import['education_name'] ?? null;
+            $bank_name           = $import['bank_name'] ?? null;
+            $account_name_bank   = $import['account_name_bank'] ?? null;
+            $account_number_bank = $import['account_number_bank'] ?? null;
+            $organization_name   = $import['organization_name'] ?? null;
+            $company_name        = $import['company_name'] ?? null;
+
+
+
+            /*
+        |--------------------------------------------------------------------------
+        | VALIDATE MASTER DATA
+        |--------------------------------------------------------------------------
+        */
+
+            $grade = $this->validateMasterData(
+                'mst_grade',
+                'grade_name',
+                $grade_name,
+                'Grade',
+                'id'
+            );
+
+            $position = $this->validateMasterData(
+                'mst_position',
+                'position_name',
+                $position_name,
+                'Position',
+                'id'
+            );
+
+            $organization = $this->validateMasterData(
+                'mst_organization',
+                'organization_name',
+                $organization_name,
+                'Organization',
+                'organization_id'
+            );
+
+            $company = $this->validateMasterData(
+                'mst_company',
+                'company_name',
+                $company_name,
+                'Company',
+                'company_id'
+            );
+
+            $working = $this->validateMasterData(
+                'mst_working_status',
+                'working_name',
+                $working_name,
+                'Working Status',
+                'id'
+            );
+
+            $ptkp = $this->validateMasterData(
+                'mst_tax_ptkp',
+                'ptkp_code',
+                $ptkp_code,
+                'PTKP',
+                'ptkp_code'
+            );
+
+            $education = $this->validateMasterData(
+                'mst_education',
+                'education_name',
+                $education_name,
+                'Education',
+                'id'
+            );
+
+            $bank = $this->validateMasterData(
+                'mst_bank',
+                'bank_name',
+                $bank_name,
+                'Bank Name',
+                'bank_id'
+            );
+
+
+            /*
+        |--------------------------------------------------------------------------
+        | COLLECT ERRORS
+        |--------------------------------------------------------------------------
+        */
+
+            $validations = [
+                $grade,
+                $position,
+                $organization,
+                $company,
+                $ptkp,
+                $working,
+                $education,
+                $bank
+            ];
+
+            foreach ($validations as $validation) {
+
+                if (!$validation['success']) {
+                    $errors[] = $validation;
+                }
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | RETURN VALIDATION ERROR
+        |--------------------------------------------------------------------------
+        */
+
+            if (!empty($errors)) {
+
+                DB::rollBack();
+
+                return response()->json([
+                    'success' => false,
+                    'errors'  => $errors
+                ], 422);
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE
+        |--------------------------------------------------------------------------
+        */
+
+            $employee_id = DB::table('mst_employee')->insertGetId([
+
+                'employee_code' => $employee_code,
+                'employee_name' => $employee_name,
+                'email'         => $email,
+                'phone'         => $phone,
+                'join_date'     => $join_date,
+                'gender'        => $gender,
+                'id_card'       => $id_card,
+                'npwp'          => $npwp,
+
+                'created_by'    => auth()->id() ?? 'system',
+                'updated_by'    => auth()->id() ?? 'system',
+                'created_at'    => now(),
+                'updated_at'    => now(),
+
+            ], 'employee_id');
+
+            /*
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE GRADE
+        |--------------------------------------------------------------------------
+        */
+
+            DB::table('mst_employee_grade')->insert([
+
+                'employee_id' => $employee_id,
+                'grade_id'    => $grade['id'],
+                'start_date'  => $join_date,
+                'created_by'  => auth()->id() ?? 'system',
+                'updated_by'  => auth()->id() ?? 'system',
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
+
+            /*
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE POSITION
+        |--------------------------------------------------------------------------
+        */
+
+            DB::table('mst_employee_position')->insert([
+
+                'employee_id' => $employee_id,
+                'position_id' => $position['id'],
+                'start_date'  => $join_date,
+                'created_by'  => auth()->id() ?? 'system',
+                'updated_by'  => auth()->id() ?? 'system',
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
+
+            /*
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE ORGANIZATION
+        |--------------------------------------------------------------------------
+        */
+
+            DB::table('mst_employee_organization')->insert([
+
+                'employee_id'     => $employee_id,
+                'organization_id' => $organization['id'],
+                'start_date'      => $join_date,
+                'created_by'      => auth()->id() ?? 'system',
+                'updated_by'      => auth()->id() ?? 'system',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+
+            /*
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE WORKING STATUS
+        |--------------------------------------------------------------------------
+        */
+
+            DB::table('mst_employee_working_status')->insert([
+
+                'employee_id'     => $employee_id,
+                'working_id' => $working['id'],
+                'start_date'      => $join_date,
+                'created_by'      => auth()->id() ?? 'system',
+                'updated_by'      => auth()->id() ?? 'system',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+            /*
+
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE TAX PTKP
+        |--------------------------------------------------------------------------
+        */
+
+            DB::table('mst_employee_ptkp')->insert([
+
+                'employee_id'     => $employee_id,
+                'ptkp_code' => $ptkp['id'],
+                'start_date'      => $join_date,
+                'created_by'      => auth()->id() ?? 'system',
+                'updated_by'      => auth()->id() ?? 'system',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+            /*
+
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE EDUCATION
+        |--------------------------------------------------------------------------
+        */
+
+            DB::table('mst_employee_education')->insert([
+
+                'employee_id'     => $employee_id,
+                'education_id' => $education['id'],
+                'start_date'      => $join_date,
+                'created_by'      => auth()->id() ?? 'system',
+                'updated_by'      => auth()->id() ?? 'system',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+
+            /*
+
+        |--------------------------------------------------------------------------
+        | INSERT EMPLOYEE BANK
+        |--------------------------------------------------------------------------
+        */
+
+            DB::table('mst_employee_bank')->insert([
+
+                'employee_id'     => $employee_id,
+                'bank_id'         => $bank['id'],
+                'start_date'      => $join_date,
+                'account_name'    => $account_name_bank,
+                'account_number'  => $account_number_bank,
+                'created_by'      => auth()->id() ?? 'system',
+                'updated_by'      => auth()->id() ?? 'system',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Employee imported successfully'
+            ]);
+        } catch (\Exception $ex) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => $ex->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE MASTER DATA
+    |--------------------------------------------------------------------------
+    */
+
+    private function validateMasterData(
+        $table,
+        $column,
+        $value,
+        $label,
+        $idColumn = 'id'
+    ) {
+
+        if (empty($value)) {
+
+            return [
+                'success' => false,
+                'field'   => $column,
+                'message' => $label . ' is required',
+                'id'      => null
+            ];
+        }
+
+        $data = DB::table($table)
+            ->where($column, $value)
+            ->first();
+
+        if (!$data) {
+
+            return [
+                'success' => false,
+                'field'   => $column,
+                'message' => $label . ' master data not found : ' . $value,
+                'id'      => null
+            ];
+        }
+
+        return [
+            'success' => true,
+            'field'   => $column,
+            'message' => null,
+            'id'      => $data->$idColumn,
+            'data'    => $data
+        ];
     }
 }
