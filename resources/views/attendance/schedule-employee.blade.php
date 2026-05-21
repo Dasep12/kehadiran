@@ -86,9 +86,17 @@
                                         <a class="dropdown-item" href="#">PDF</a>
                                     </div>
                                 </div>
+                                @if($canCreate)
                                 <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create Schedule</button>
 
                                 <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="CrudShiftOvveride('create','*')" data-bs-target="#offcanvasEndOvveride" role="button" aria-controls="offcanvasEnd"> Create Shift Override</button>
+                                @else
+                                <button class="btn btn-outline-primary"
+                                    disabled data-bs-toggle="offcanvas" type="button" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create Schedule</button>
+
+                                <button class="btn btn-outline-primary" disabled data-bs-toggle="offcanvas" type="button" data-bs-target="#offcanvasEndOvveride" role="button" aria-controls="offcanvasEnd"> Create Shift Override</button>
+                                @endif
+
                             </div>
                         </div>
                     </div>

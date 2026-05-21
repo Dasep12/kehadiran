@@ -65,9 +65,16 @@
                     <!-- Your education content here -->
                     <div id="employee-import"></div>
 
-                    <input type="file" class="mb-2 form-control form-control-sm" id="newEmployeeExcel">
 
+
+                    @if($canCreate)
+                    <input type="file" class="mb-2 form-control form-control-sm" id="newEmployeeExcel">
                     <button type="button" class="btn btn-outline-primary" onclick="SubmitNewEmployeeImport()">Submit Data</button>
+                    @else
+                    <input type="file" disabled class="mb-2 form-control form-control-sm" id="newEmployeeExcel">
+                    <button type="button" class="btn btn-outline-primary" disabled>Submit Data</button>
+                    @endif
+
 
                     <div id="importProgressWrapper" style="display:none;">
 
@@ -95,6 +102,8 @@
 <!-- END PAGE BODY  -->
 @push('scripts')
 <script>
+    const canEdit = "{{ $canEdit }}"
+    const canDelete = "{{ $canDelete }}"
     let employeeTable = null;
     var tableNewEmployeeImport = new Tabulator("#employee-import", {
         layout: "fitData",
@@ -310,13 +319,17 @@
 
 
     function actionFormatter(cell) {
-        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().employee_id}')" class="btn btn-sm btn-outline-primary">
+        let clickEdit = canEdit == true ? `onclick="Crud('update', '${cell.getRow().getData().employee_id}')"` : '';
+        let clickDelete = `onclick="Crud('delete', '${cell.getRow().getData().employee_id}')"`;
+        let disabledEdit = canEdit == true ? "" : "disabled";
+        let disabledDelete = canDelete == true ? "" : "disabled";
+        return `<button type="button" ${disabledEdit} ${clickEdit} class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
         </button>
-        <button type="button" onclick="Crud('delete', '${cell.getRow().getData().employee_id}')" class="btn btn-sm btn-outline-danger">
+        <button type="button" ${disabledDelete} ${clickDelete} class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>

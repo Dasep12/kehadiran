@@ -34,7 +34,11 @@
                          <a id="btnExportExcel" class="dropdown-item" href="#">Format Import</a>
                      </div>
                  </div>
+                 @if($canCreate)
                  <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="CrudSalaryImport('create','*')" data-bs-target="#offcanvasSalaryImportEnd" role="button" aria-controls="offcanvasSalaryImportEnd"> Create </button>
+                 @else
+                 <button class="btn btn-outline-primary" disabled data-bs-toggle="offcanvas" type="button" data-bs-target="#offcanvasSalaryImportEnd" role="button" aria-controls="offcanvasSalaryImportEnd"> Create </button>
+                 @endif
              </div>
          </div>
      </div>
@@ -58,8 +62,13 @@
 
          </div>
          <div class="col d-flex justify-content-start gap-2 mt-3">
+             @if($canCreate)
              <input type="file" class="form-control w-10" id="importExcel" accept=".xlsx,.xls,.csv">
              <button type="button" class="btn btn-outline-primary" onclick="SubmitSalaryImport()"><i class="ti ti-upload"></i> Submit</button>
+             @else
+             <input type="file" disabled class="form-control w-10" id="importExcel" accept=".xlsx,.xls,.csv">
+             <button type="button" class="btn btn-outline-primary" disabled><i class="ti ti-upload"></i> Submit</button>
+             @endif
          </div>
      </div>
  </div>

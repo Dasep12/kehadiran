@@ -94,7 +94,12 @@
                                         <a class="dropdown-item" href="#">PDF</a>
                                     </div>
                                 </div>
+                                @if($canCreate)
                                 <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create </button>
+                                @else
+                                <button disabled class="disabled btn btn-outline-primary" data-bs-toggle="offcanvas" type="button"> Create </button>
+                                @endif
+
                             </div>
                         </div>
                     </div>
@@ -486,6 +491,7 @@
     });
 
     function actionFormatter(cell) {
+
         return `<div class="d-flex gap-1"><button type="button" onclick="Crud('update', '${cell.getRow().getData().id}')" class="btn btn-sm btn-outline-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>

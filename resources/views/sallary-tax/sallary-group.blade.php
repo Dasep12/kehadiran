@@ -50,7 +50,12 @@
                                         <a class="dropdown-item" href="#">PDF</a>
                                     </div>
                                 </div>
+                                @if($canCreate)
                                 <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create </button>
+                                @else
+                                <button disabled class="disabled btn btn-outline-primary" data-bs-toggle="offcanvas" type="button"> Create </button>
+                                @endif
+
                             </div>
                         </div>
                     </div>
@@ -67,6 +72,8 @@
 <!-- END PAGE BODY  -->
 @push('scripts')
 <script>
+    const canEdit = "{{ $canEdit }}"
+    const canDelete = "{{ $canDelete }}"
     var table = new Tabulator("#sallary-group-master", {
         ajaxURL: "{{ route('sallaryTax.getSallaryGroupData') }}", // endpoint Laravel
         ajaxConfig: "GET",
@@ -195,13 +202,17 @@
     });
 
     function actionFormatter(cell) {
-        return `<button type="button" onclick="Crud('update', '${cell.getRow().getData().group_id}')" class="btn btn-sm btn-outline-primary me-1">
+        let clickEdit = canEdit == true ? `onclick="Crud('update', '${cell.getRow().getData().group_id}')"` : '';
+        let clickDelete = `onclick="Crud('delete', '${cell.getRow().getData().group_id}')"`;
+        let disabledEdit = canEdit == true ? "" : "disabled";
+        let disabledDelete = canDelete == true ? "" : "disabled";
+        return `<button type="button" ${disabledEdit} ${clickEdit} class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
         </button>
-        <button type="button" onclick="Crud('delete', '${cell.getRow().getData().group_id}')" class="btn btn-sm btn-outline-danger">
+        <button type="button" ${disabledDelete} ${clickDelete} class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>

@@ -52,9 +52,28 @@
                                             <a class="dropdown-item" href="#">PDF</a>
                                         </div>
                                     </div>
+
+                                    @if($canCreate)
                                     <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create </button>
+                                    @else
+                                    <button disabled class="disabled btn btn-outline-primary" data-bs-toggle="offcanvas" type="button"> Create </button>
+                                    @endif
+
+                                    @if($canEdit)
                                     <button disabled id="btn-edit" class="btn btn-outline-success" data-bs-toggle="offcanvas" type="button" onclick="Crud('edit','')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Edit </button>
+                                    @else
+                                    <button disabled class="disabled btn btn-outline-success" data-bs-toggle="offcanvas" type="button"> Edit </button>
+                                    @endif
+
+                                    @if($canDelete)
                                     <button disabled id="btn-delete" class="btn btn-outline-danger" data-bs-toggle="offcanvas" type="button" onclick="Crud('delete','')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Delete </button>
+                                    @else
+                                    <button disabled class="disabled btn btn-outline-danger" data-bs-toggle="offcanvas" type="button"> Delete </button>
+                                    @endif
+
+
+
+
 
                                 </div>
                             </div>

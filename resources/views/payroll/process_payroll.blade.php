@@ -54,11 +54,20 @@
                     <div id="download-status" class="mt-1"></div>
                     <div class="row">
                         <div class="col-12 mt-3 d-flex justify-content-start gap-2">
+                            @if($canCreate)
                             <button class="btn btn-primary" type="button" onclick="CrudCalucaltion()">Process Calculation <i class="ti ti-refresh mt-1 mr-2"></i> </button>
+                            @else
+                            <button class="btn btn-primary" type="button" disabled>Process Calculation <i class="ti ti-refresh mt-1 mr-2"></i> </button>
+                            @endif
                             <div class="dropdown">
                                 <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More Process</a>
                                 <div class="dropdown-menu">
+                                    @if($canCreate)
                                     <a id="btn-close-payroll" class="dropdown-item" href="#">Close Payroll</a>
+                                    @else
+                                    <a onclick="alert('No Permissions')" class="dropdown-item" href="#">Close Payroll</a>
+                                    @endif
+
                                     <a id="btn-download" class="dropdown-item" href="#">Export Data</a>
                                 </div>
                             </div>
@@ -75,6 +84,9 @@
 <!-- END PAGE BODY  -->
 @push('scripts')
 <script>
+    const canEdit = "{{ $canEdit }}"
+    const canDelete = "{{ $canDelete }}"
+
     function loadPeriod() {
         $.ajax({
             url: "{{ route('sallaryTax.getPayPeriodsData') }}",

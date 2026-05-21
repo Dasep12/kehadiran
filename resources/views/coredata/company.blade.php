@@ -50,7 +50,7 @@
                                         <a class="dropdown-item" href="#">PDF</a>
                                     </div>
                                 </div>
-                                @if(has_permission('coredata.company', 'create'))
+                                @if($canCreate)
                                 <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" type="button" onclick="Crud('create','*')" data-bs-target="#offcanvasEnd" role="button" aria-controls="offcanvasEnd"> Create </button>
                                 @else
                                 <button disabled class="disabled btn btn-outline-primary" data-bs-toggle="offcanvas" type="button"> Create </button>
@@ -72,8 +72,8 @@
 <!-- END PAGE BODY  -->
 @push('scripts')
 <script>
-    const canEdit = @json(has_permission('coredata.company', 'edit'));
-    const canDelete = @json(has_permission('coredata.company', 'delete'));
+    const canEdit = "{{ $canEdit }}"
+    const canDelete = "{{ $canDelete }}"
 
     var table = new Tabulator("#company-data", {
         ajaxURL: "{{ route('coredata.getCompanyDataJson') }}", // endpoint Laravel

@@ -12,6 +12,9 @@ class WorkTimeController extends Controller
     {
         $data = [
             'title' => 'Attendance Type',
+            'canCreate' => has_permission('worktime.AttendaceTypes', 'create'),
+            'canEdit' => has_permission('worktime.AttendaceTypes', 'edit'),
+            'canDelete' => has_permission('worktime.AttendaceTypes', 'delete'),
         ];
         return view('worktime.attendance-types', $data);
     }
@@ -88,6 +91,9 @@ class WorkTimeController extends Controller
     {
         $data = [
             'title' => 'Shift',
+            'canCreate' => has_permission('worktime.ShiftSettings', 'create'),
+            'canEdit' => has_permission('worktime.ShiftSettings', 'edit'),
+            'canDelete' => has_permission('worktime.ShiftSettings', 'delete'),
         ];
         return view('worktime.shift-settings', $data);
     }
@@ -378,6 +384,9 @@ class WorkTimeController extends Controller
     {
         $data = [
             'title' => 'Overtime',
+            'canCreate' => has_permission('worktime.OvertimeSettings', 'create'),
+            'canEdit' => has_permission('worktime.OvertimeSettings', 'edit'),
+            'canDelete' => has_permission('worktime.OvertimeSettings', 'delete'),
         ];
         return view('worktime.overtime-settings', $data);
     }
@@ -682,6 +691,9 @@ class WorkTimeController extends Controller
     {
         $data = [
             'title' => 'Work Calendar',
+            'canCreate' => has_permission('worktime.WorkCalendar', 'create'),
+            'canEdit' => has_permission('worktime.WorkCalendar', 'edit'),
+            'canDelete' => has_permission('worktime.WorkCalendar', 'delete'),
         ];
         return view('worktime.work-calendar', $data);
     }

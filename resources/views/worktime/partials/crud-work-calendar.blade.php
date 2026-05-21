@@ -41,6 +41,7 @@
 
 
                 <div class="text-end">
+                    @if($canDelete)
                     <button type="button" class="btn btn-danger delete_btn" aria-label="Close">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x-mark">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -48,6 +49,17 @@
                         </svg>
                         Cancel
                     </button>
+                    @else
+                    <button type="button" disabled class="btn btn-danger" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x-mark">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 16l3.644 3.644a1.21 1.21 0 0 0 1.712 0l2.288 -2.288a1.21 1.21 0 0 0 0 -1.712l-3.644 -3.644l3.644 -3.644a1.21 1.21 0 0 0 0 -1.712l-2.288 -2.288a1.21 1.21 0 0 0 -1.712 0l-3.644 3.644l-3.644 -3.644a1.21 1.21 0 0 0 -1.712 0l-2.288 2.288a1.21 1.21 0 0 0 0 1.712l3.644 3.644l-3.644 3.644a1.21 1.21 0 0 0 0 1.712l2.288 2.288a1.21 1.21 0 0 0 1.712 0m3.644 -3.644" />
+                        </svg>
+                        Cancel
+                    </button>
+                    @endif
+
+                    @if($canEdit || $canCreate)
                     <button type="submit" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-send">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -55,6 +67,16 @@
                         </svg>
                         Submit
                     </button>
+                    @else
+                    <button type="submit" disabled class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-send">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M21.864 3.549l-6.454 17.868a1.55 1.55 0 0 1 -1.41 .903a1.54 1.54 0 0 1 -1.394 -.874l-2.88 -5.759zm-1.414 -1.414l-12.139 12.138l-5.728 -2.864a1.55 1.55 0 0 1 -.903 -1.409c0 -.606 .353 -1.157 .981 -1.44z" />
+                        </svg>
+                        Submit
+                    </button>
+                    @endif
+
                 </div>
             </div>
             <div id="Crud-ErrorInfo"></div>

@@ -14,6 +14,9 @@ class CoreDataController extends Controller
     {
         $data = [
             'title' => 'Company',
+            'canCreate' => has_permission('coredata.company', 'create'),
+            'canEdit' => has_permission('coredata.company', 'edit'),
+            'canDelete' => has_permission('coredata.company', 'delete'),
         ];
         return view('coredata.company', $data);
     }
@@ -162,6 +165,9 @@ class CoreDataController extends Controller
     {
         $data = [
             'title' => 'Education',
+            'canCreate' => has_permission('coredata.education', 'create'),
+            'canEdit' => has_permission('coredata.education', 'edit'),
+            'canDelete' => has_permission('coredata.education', 'delete'),
         ];
         return view('coredata.education', $data);
     }
@@ -241,6 +247,9 @@ class CoreDataController extends Controller
     {
         $data = [
             'title' => 'Work Status',
+            'canCreate' => has_permission('coredata.education', 'create'),
+            'canEdit' => has_permission('coredata.education', 'edit'),
+            'canDelete' => has_permission('coredata.education', 'delete'),
         ];
         return view('coredata.work-status', $data);
     }
@@ -321,6 +330,9 @@ class CoreDataController extends Controller
     {
         $data = [
             'title' => 'Position',
+            'canCreate' => has_permission('coredata.position', 'create'),
+            'canEdit' => has_permission('coredata.position', 'edit'),
+            'canDelete' => has_permission('coredata.position', 'delete'),
         ];
         return view('coredata.position', $data);
     }
@@ -461,6 +473,9 @@ class CoreDataController extends Controller
     {
         $data = [
             'title' => 'Organization',
+            'canCreate' => has_permission('coredata.organization', 'create'),
+            'canEdit' => has_permission('coredata.organization', 'edit'),
+            'canDelete' => has_permission('coredata.organization', 'delete'),
         ];
         return view('coredata.organization', $data);
     }
@@ -642,6 +657,9 @@ class CoreDataController extends Controller
     {
         $data = [
             'title' => 'Job Grade',
+            'canCreate' => has_permission('coredata.jobGrade', 'create'),
+            'canEdit' => has_permission('coredata.jobGrade', 'edit'),
+            'canDelete' => has_permission('coredata.jobGrade', 'delete'),
         ];
         return view('coredata.job-grade', $data);
     }

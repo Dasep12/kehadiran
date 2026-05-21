@@ -14,6 +14,9 @@ class AttendanceController extends Controller
     {
         $data = [
             'title' => 'Shift Employee',
+            'canCreate' => has_permission('attendance.EmployeeAttendance', 'create'),
+            'canEdit' => has_permission('attendance.EmployeeAttendance', 'edit'),
+            'canDelete' => has_permission('attendance.EmployeeAttendance', 'delete'),
         ];
         return view('attendance.shift-employee', $data);
     }
@@ -130,6 +133,9 @@ class AttendanceController extends Controller
     {
         $data = [
             'title' => 'Attendance Employee',
+            'canCreate' => has_permission('attendance.EmployeeAttendance', 'create'),
+            'canEdit' => has_permission('attendance.EmployeeAttendance', 'edit'),
+            'canDelete' => has_permission('attendance.EmployeeAttendance', 'delete'),
         ];
         return view('attendance.attendance-employee', $data);
     }
@@ -266,6 +272,9 @@ class AttendanceController extends Controller
     {
         $data = [
             'title' => 'Schedule Employee',
+            'canCreate' => has_permission('attendance.EmployeeSchedule', 'create'),
+            'canEdit' => has_permission('attendance.EmployeeSchedule', 'edit'),
+            'canDelete' => has_permission('attendance.EmployeeSchedule', 'delete'),
         ];
         return view('attendance.schedule-employee', $data);
     }

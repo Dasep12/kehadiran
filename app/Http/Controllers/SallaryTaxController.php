@@ -12,6 +12,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Allowances',
+            'canCreate' => has_permission('sallaryTax.allowances', 'create'),
+            'canEdit' => has_permission('sallaryTax.allowances', 'edit'),
+            'canDelete' => has_permission('sallaryTax.allowances', 'delete'),
         ];
         return view('sallary-tax.allowances', $data);
     }
@@ -126,6 +129,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Allowance Position',
+            'canCreate' => has_permission('sallaryTax.allowancePosition', 'create'),
+            'canEdit' => has_permission('sallaryTax.allowancePosition', 'edit'),
+            'canDelete' => has_permission('sallaryTax.allowancePosition', 'delete'),
         ];
         return view('sallary-tax.allowances-position', $data);
     }
@@ -235,6 +241,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Pay Periods',
+            'canCreate' => has_permission('sallaryTax.payPeriods', 'create'),
+            'canEdit' => has_permission('sallaryTax.payPeriods', 'edit'),
+            'canDelete' => has_permission('sallaryTax.payPeriods', 'delete'),
         ];
         return view('sallary-tax.pay-periods', $data);
     }
@@ -323,6 +332,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Tax PTKP',
+            'canCreate' => has_permission('sallaryTax.taxPtkp', 'create'),
+            'canEdit' => has_permission('sallaryTax.taxPtkp', 'edit'),
+            'canDelete' => has_permission('sallaryTax.taxPtkp', 'delete'),
         ];
         return view('sallary-tax.tax-ptkp', $data);
     }
@@ -410,6 +422,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Tax Effective Rate (TER)',
+            'canCreate' => has_permission('sallaryTax.taxTer', 'create'),
+            'canEdit' => has_permission('sallaryTax.taxTer', 'edit'),
+            'canDelete' => has_permission('sallaryTax.taxTer', 'delete'),
         ];
         return view('sallary-tax.tax-ter', $data);
     }
@@ -502,6 +517,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Tax Brackets',
+            'canCreate' => has_permission('sallaryTax.taxBrackets', 'create'),
+            'canEdit' => has_permission('sallaryTax.taxBrackets', 'edit'),
+            'canDelete' => has_permission('sallaryTax.taxBrackets', 'delete'),
         ];
         return view('sallary-tax.tax-brackets', $data);
     }
@@ -590,6 +608,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Tax Settings',
+            'canCreate' => has_permission('sallaryTax.taxSettings', 'create'),
+            'canEdit' => has_permission('sallaryTax.taxSettings', 'edit'),
+            'canDelete' => has_permission('sallaryTax.taxSettings', 'delete'),
             'remark' => ''
         ];
         return view('sallary-tax.tax-settings', $data);
@@ -677,6 +698,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Sallary Gruop',
+            'canCreate' => has_permission('sallaryTax.sallaryGroup', 'create'),
+            'canEdit' => has_permission('sallaryTax.sallaryGroup', 'edit'),
+            'canDelete' => has_permission('sallaryTax.sallaryGroup', 'delete'),
             'remark' => ''
         ];
         return view('sallary-tax.sallary-group', $data);
@@ -835,6 +859,9 @@ class SallaryTaxController extends Controller
     {
         $data = [
             'title' => 'Membership Fees',
+            'canCreate' => has_permission('sallaryTax.membershipFees', 'create'),
+            'canEdit' => has_permission('sallaryTax.membershipFees', 'edit'),
+            'canDelete' => has_permission('sallaryTax.membershipFees', 'delete'),
             'remark' => ''
         ];
         return view('coredata.membership-fees', $data);

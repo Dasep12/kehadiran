@@ -15,6 +15,9 @@ class PayrollController extends Controller
     {
         $data = [
             'title' => 'Employee',
+            'canCreate' => has_permission('payroll.salary-manual', 'create'),
+            'canEdit' => has_permission('payroll.salary-manual', 'edit'),
+            'canDelete' => has_permission('payroll.salary-manual', 'delete'),
         ];
         return view('payroll.salary_manual', $data);
     }
@@ -90,6 +93,9 @@ class PayrollController extends Controller
     {
         $data = [
             'title' => 'Process Payroll',
+            'canCreate' => has_permission('payroll.process-payroll', 'create'),
+            'canEdit' => has_permission('payroll.process-payroll', 'edit'),
+            'canDelete' => has_permission('payroll.process-payroll', 'delete'),
         ];
         return view('payroll.process_payroll', $data);
     }

@@ -15,6 +15,9 @@ class EmployeeController extends Controller
     {
         $data = [
             'title' => 'Employee',
+            'canCreate' => has_permission('employees.index', 'create'),
+            'canEdit' => has_permission('employees.index', 'edit'),
+            'canDelete' => has_permission('employees.index', 'delete'),
         ];
         return view('employee.index', $data);
     }
@@ -1100,6 +1103,9 @@ class EmployeeController extends Controller
     {
         $data = [
             'title' => 'Imprort Employee',
+            'canCreate' => has_permission('employees.importEmployee', 'create'),
+            'canEdit' => has_permission('employees.importEmployee', 'edit'),
+            'canDelete' => has_permission('employees.importEmployee', 'delete'),
         ];
         return view('employee.import-employee', $data);
     }
