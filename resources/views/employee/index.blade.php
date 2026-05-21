@@ -78,6 +78,9 @@
         ajaxConfig: "GET",
         // 🔥 layout fix (penting)
         layout: "fitData",
+        columnDefaults: {
+            vertAlign: "middle",
+        },
         responsiveLayout: false, // disable hide/collapse → pakai scroll
         height: "450px",
         // 🔥 pagination

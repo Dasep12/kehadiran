@@ -69,7 +69,7 @@
 
                     <button type="button" class="btn btn-outline-primary" onclick="SubmitNewEmployeeImport()">Submit Data</button>
 
-                    <div id="importProgressWrapper" style="display:block;">
+                    <div id="importProgressWrapper" style="display:none;">
 
                         <div class="progress mt-3">
                             <div id="importProgressBar"

@@ -81,4 +81,4 @@
 </script>
 @endpush
 
-@include('worktime.partials.crud-work-calendar');
+@include('worktime.partials.crud-work-calendar')
