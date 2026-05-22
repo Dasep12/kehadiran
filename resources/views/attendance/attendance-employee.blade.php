@@ -168,7 +168,7 @@
             title: a.allowance_name,
             field: "allowance_" + a.allowance_id,
             hozAlign: "right",
-            width: 150,
+            // width: 180,
             visible: false, // 🔥 default hidden
             formatter: function(cell) {
                 let val = cell.getValue();
@@ -217,7 +217,7 @@
                 };
             },
 
-            layout: "fitData",
+            layout: "fitColumns",
             columnDefaults: {
                 vertAlign: "middle",
                 headerHozAlign: "center" // 🔥 global

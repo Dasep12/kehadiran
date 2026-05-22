@@ -292,6 +292,7 @@
             amount: $('#amount').val(),
             start_date: $('#start_date').val(),
             end_date: $('#end_date').val(),
+            is_daily: $("#is_daily").is(':checked') ? 1 : 0,
             action: action,
             _token: '{{ csrf_token() }}'
         };

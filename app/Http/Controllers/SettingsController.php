@@ -129,10 +129,10 @@ class SettingsController extends Controller
     public function roles()
     {
         $data = [
-            'title' => 'Membership Fees',
-            'canCreate' => has_permission('settings.menu', 'create'),
-            'canEdit' => has_permission('settings.menu', 'edit'),
-            'canDelete' => has_permission('settings.menu', 'delete'),
+            'title' => 'Roles',
+            'canCreate' => has_permission('settings.roles', 'create'),
+            'canEdit' => has_permission('settings.roles', 'edit'),
+            'canDelete' => has_permission('settings.roles', 'delete'),
             'remark' => ''
         ];
         return view('settings.roles', $data);
@@ -306,9 +306,9 @@ class SettingsController extends Controller
     {
         $data = [
             'title' => 'Membership Fees',
-            'canCreate' => has_permission('settings.menu', 'create'),
-            'canEdit' => has_permission('settings.menu', 'edit'),
-            'canDelete' => has_permission('settings.menu', 'delete'),
+            'canCreate' => has_permission('settings.users', 'create'),
+            'canEdit' => has_permission('settings.users', 'edit'),
+            'canDelete' => has_permission('settings.users', 'delete'),
             'remark' => ''
         ];
         return view('settings.users', $data);

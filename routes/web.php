@@ -299,6 +299,8 @@ Route::middleware('auth')->group(function () {
         ->name('attendance.CrudOvveride');
     Route::get('/attendance/schedule-shift-ovveride', [App\Http\Controllers\AttendanceController::class, 'ShiftOvverideData'])
         ->name('attendance.ShiftOvverideData');
+    Route::get('/attendance/schedule--group-shift-by-date', [App\Http\Controllers\AttendanceController::class, 'ScheduleGroupByDate'])
+        ->name('attendance.ScheduleGroupByDate');
 
 
 

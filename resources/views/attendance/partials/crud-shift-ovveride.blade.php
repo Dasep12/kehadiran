@@ -14,14 +14,17 @@
                 </div>
 
                 <div class="mb-3 row">
+                    <label class="col-3 col-form-label required">Work Date</label>
+                    <div class="col">
+                        <input type="text" name="work_date" id="work_date" class="form-control date_picker" aria-describedby="educationHelp" placeholder="Enter Start Date">
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
                     <label class="col-3 col-form-label required">Group Shift</label>
                     <div class="col">
                         <select class="form-control" name="shift_group_id_ovveride" id="shift_group_id_ovveride">
-                            <option value="C">CUTI</option>
-                            <option value="H">HADIR</option>
-                            <option value="I">IZIN</option>
-                            <option value="S">SAKIT</option>
-                            <option value="M">MANGKIR</option>
+
                         </select>
                     </div>
                 </div>
@@ -33,13 +36,15 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Work Date</label>
+                    <label class="col-3 col-form-label required">New Shift</label>
                     <div class="col">
-                        <input type="text" name="work_date" id="work_date" class="form-control date_picker" aria-describedby="educationHelp" placeholder="Enter Start Date">
+                        <select class="form-control" name="new_shift_id_ovveride" id="new_shift_id_ovveride">
+                        </select>
                     </div>
                 </div>
+
+
 
                 <div class="mb-3 row">
                     <label class="col-3 col-form-label"></label>
@@ -73,7 +78,7 @@
                 </div>
             </div>
 
-            <div id="shift-ovveride-table"></div>
+            <div class="mt-3" id="shift-ovveride-table"></div>
 
             <div id="Crud-ErrorInfoOvveride"></div>
         </div>
@@ -93,6 +98,7 @@
         $('#form-crud-ovveride').find('input, select').attr('readonly', false).attr('disabled', false);
         $('#id').attr('readonly', false); // ID biasanya selalu readonly
 
+        $("#shift_id_ovveride").attr("disabled", true);
         $('#crud-action-ovveride').val(action);
         $('#Crud-ErrorInfoOvveride').html(''); // Reset error info
         $('#offcanvasOvverideEnd').offcanvas('show');
@@ -138,6 +144,30 @@
                 break;
         }
     }
+
+    function loadGroupScheduleShift() {
+        $.ajax({
+            url: "{{ route('attendance.ScheduleGroupByDate') }}",
+            method: "GET",
+            cache: false,
+            data: {
+                work_date: $("#work_date").val(),
+                group_id: $("#shift_group_id_ovveride").val()
+            },
+            success: function(response) {
+                console.log(response)
+                if (!response.shift_id) {
+                    alert("tidak ada jadwal");
+                    $("#shift_id_ovveride").val('');
+                    return;
+                }
+                $("#shift_id_ovveride").val(response.shift_id);
+            }
+        })
+    }
+    $("#shift_group_id_ovveride,#work_date").on("change", function() {
+        loadGroupScheduleShift()
+    })
 
     // Fungsi helper untuk mengecek apakah baris boleh diedit
     var editCheck = function(cell) {
@@ -199,8 +229,13 @@
                 width: 150,
             },
             {
-                title: "Shift",
+                title: "Old Shift",
                 field: "shift_name",
+                width: 150,
+            },
+            {
+                title: "New Shift",
+                field: "new_shift_name",
                 width: 150,
             }, {
                 title: "Working Day",
@@ -295,6 +330,7 @@
             shift_group_id: $('#shift_group_id_ovveride').val(),
             work_date: $('#work_date').val(),
             shift_id: $('#shift_id_ovveride').val(),
+            new_shift_id: $('#new_shift_id_ovveride').val(),
             is_work: $('#is_work_ovveride').is(':checked') ? 1 : 0,
             action: action,
             _token: '{{ csrf_token() }}'

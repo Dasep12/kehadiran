@@ -348,15 +348,23 @@ class AttendanceController extends Controller
             if ($group == "all") {
                 $group_all =  DB::table('mst_shift_group')->select('shift_group_id')->get();
                 foreach ($group_all as $gr) {
-                    DB::statement("CALL sp_generate_employee_schedule(?, ?, ?)", [
+                    DB::statement("CALL sp_generate_group_shift_schedule(?, ?, ?)", [
                         $gr->shift_group_id,
+                        $start_date,
+                        $end_date
+                    ]);
+                    DB::statement("CALL sp_generate_employee_shift_schedule(?, ?)", [
                         $start_date,
                         $end_date
                     ]);
                 }
             } else {
-                DB::statement("CALL sp_generate_employee_schedule(?, ?, ?)", [
+                DB::statement("CALL sp_generate_group_shift_schedule(?, ?, ?)", [
                     $group,
+                    $start_date,
+                    $end_date
+                ]);
+                DB::statement("CALL sp_generate_employee_shift_schedule(?, ?)", [
                     $start_date,
                     $end_date
                 ]);
@@ -396,6 +404,7 @@ class AttendanceController extends Controller
             'shift_group_id' => $request->shift_group_id,
             'work_date' => $request->work_date,
             'shift_id' => $request->shift_id,
+            'new_shift_id' => $request->new_shift_id,
             'is_work' => $request->is_work,
             'created_by'    => auth()->id() ?? 'system',
             'updated_by'    => auth()->id() ?? 'system',
@@ -435,9 +444,17 @@ class AttendanceController extends Controller
     {
         $data = DB::table('trn_shift_group_override_detail as a')
             ->leftJoin('mst_shift as b', 'b.shift_id', 'a.shift_id')
+            ->leftJoin('mst_shift as d', 'a.new_shift_id', 'd.shift_id')
             ->leftJoin('mst_shift_group as c', 'c.shift_group_id', 'a.shift_group_id')
-            ->select('a.*', 'b.shift_name', 'c.shift_group_name');
+            ->select('a.*', 'b.shift_name', 'd.shift_name as new_shift_name', 'c.shift_group_name');
         $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+
+
+    public function ScheduleGroupByDate(Request $request)
+    {
+        $data = DB::table('trn_shift_group_schedule')->where(['shift_group_id' => $request->group_id, 'work_date' => $request->work_date])->first();
         return response()->json($data);
     }
     // End of Attendance - Employee Schedule

@@ -189,7 +189,6 @@ class SallaryTaxController extends Controller
         ];
 
         $request->validate($rules);
-
         // Siapkan data untuk insert/update
         $data = [
             'position_id' => $request->position_id,
@@ -200,7 +199,7 @@ class SallaryTaxController extends Controller
             'amount' => $request->amount,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'is_daily' => $request->is_daily ?? 0,
+            'is_daily' => $request->is_daily,
             'created_by'    => auth()->id() ?? 'system',
             // Tambahkan field lainnya sesuai kebutuhan
             'updated_by'    => auth()->id() ?? 'system',

@@ -145,9 +145,12 @@
                     options += `<option value="${groupShift.shift_id}">${groupShift.shift_name}</option>`;
                 });
                 $('#shift_id_ovveride').html(options);
+                $('#new_shift_id_ovveride').html(options);
             }
         });
     }
+
+
 
     loadGroupShift()
     loadShift()
