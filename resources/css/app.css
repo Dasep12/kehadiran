@@ -29,10 +29,10 @@ body {
     font-weight: 700 !important;
     letter-spacing: 0.07em !important;
     text-transform: uppercase !important;
-    color: #64748b !important;
+    color: #dfe4ea !important;
 }
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
-    background: #dbeafe !important;
+    /* background: #06065d !important; */
 }
 .tabulator .tabulator-row {
     background: #fff !important;
@@ -49,6 +49,7 @@ body {
 .tabulator .tabulator-row.tabulator-row-even:hover {
     background: #eff6ff !important;
 } */
+
 .tabulator .tabulator-row .tabulator-cell {
     /* padding: 10px 12px !important; */
     padding: 4px 8px !important; /* kecilin padding */
@@ -121,7 +122,9 @@ body {
 .tabulator .tabulator-alert {
     background: rgba(255, 255, 255, 0.8) !important ; /* lebih clean */
 }
-
+.tabulator .tabulator-header .tabulator-col {
+    background: #555960 !important;
+}
 .tabulator .tabulator-alert-msg {
     border: none !important;
     background: transparent !important;
@@ -149,6 +152,30 @@ body {
     color: #206bc4 !important;
     border-bottom-color: #206bc4 !important;
 }
+
+.navbar {
+    /* --tblr-navbar-bg: #06065d !important; */
+}
+.navbar-nav {
+    /* --tblr-nav-link-color: #fff !important; */
+}
+
+/* .navbar-expand-md .nav-item.active .nav-link {
+    color: #fff !important;
+    background: #f59e0b;
+} */
+
+/* .nav-link:hover {
+    background-color: #f59e0b;
+}
+.nav-link:hover {
+    color: #161313 !important;
+    text-decoration: none;
+}
+
+.custom-nav:focus {
+    color: #fff !important;
+} */
 /*  */
 
 /* CUSTOM LOADER */
@@ -205,4 +232,8 @@ body {
 
 .offcanvas-body {
     max-height: 700px !important;
+}
+
+.page-wrapper {
+    background: #ffffff !important;
 }

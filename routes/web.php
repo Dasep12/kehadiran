@@ -352,4 +352,35 @@ Route::middleware('auth')->group(function () {
         ->name('payroll.closePayroll');
     Route::get('/payroll/close-period-status', [App\Http\Controllers\PayrollController::class, 'checkPayrollStatus'])
         ->name('payroll.checkPayrollStatus');
+
+    // SETTINGS -
+    Route::get('/settings/icons', [App\Http\Controllers\SettingsController::class, 'DataIcons'])->name('settings.icons');
+    Route::get('/settings/menu', [App\Http\Controllers\SettingsController::class, 'menu'])
+        ->middleware('permission:settings.menu')
+        ->name('settings.menu');
+    Route::get('/settings/menu/data', [App\Http\Controllers\SettingsController::class, 'getDataMenu'])
+        ->name('settings.getDataMenu');
+    Route::post('/settings/menu-crud', [App\Http\Controllers\SettingsController::class, 'CrudMenu'])
+        ->name('settings.CrudMenu');
+
+    // ROLES 
+    Route::get('/settings/roles', [App\Http\Controllers\SettingsController::class, 'roles'])
+        ->middleware('permission:settings.roles')
+        ->name('settings.roles');
+    Route::get('/settings/roles/data', [App\Http\Controllers\SettingsController::class, 'getDataRoles'])
+        ->name('settings.getDataRoles');
+    Route::get('/settings/roles/menu-permissions', [App\Http\Controllers\SettingsController::class, 'MenuPermissions'])
+        ->name('settings.MenuPermissions');
+    Route::post('/settings/menu-crud', [App\Http\Controllers\SettingsController::class, 'CrudRoles'])
+        ->name('settings.CrudRoles');
+
+
+    // USERS
+    Route::get('/settings/users', [App\Http\Controllers\SettingsController::class, 'users'])
+        ->middleware('permission:settings.users')
+        ->name('settings.users');
+    Route::get('/settings/users/data', [App\Http\Controllers\SettingsController::class, 'getDataUsers'])
+        ->name('settings.getDataUsers');
+    Route::post('/settings/users-crud', [App\Http\Controllers\SettingsController::class, 'CrudUsers'])
+        ->name('settings.CrudUsers');
 });

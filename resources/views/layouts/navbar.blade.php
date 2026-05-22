@@ -69,28 +69,18 @@
                             {{-- ========================================================= --}}
 
                             @if($menu->children->count() == 0)
-
                             <li class="nav-item {{ $isActive ? 'active' : '' }}">
-
-                                <a class="nav-link {{ $isActive ? 'active' : '' }}"
+                                <a class="nav-link custom-nav {{ $isActive ? 'active' : '' }}"
                                     href="{{ $menu->menu_url != '#' ? route($menu->menu_url) : '#' }}">
-
                                     @if($menu->menu_icon)
-
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
-
-                                        <i class="ti ti-{{ $menu->menu_icon }}"></i>
-
+                                        <i class="fs-3 {{ $menu->menu_icon }}"></i>
                                     </span>
-
                                     @endif
-
                                     <span class="nav-link-title">
                                         {{ $menu->menu_name }}
                                     </span>
-
                                 </a>
-
                             </li>
 
                             @else
@@ -101,7 +91,7 @@
 
                             <li class="nav-item dropdown {{ $isActive ? 'active' : '' }}">
 
-                                <a class="nav-link dropdown-toggle {{ $isActive ? 'active' : '' }}"
+                                <a class="nav-link custom-nav dropdown-toggle {{ $isActive ? 'active' : '' }}"
                                     href="#"
                                     data-bs-toggle="dropdown"
                                     data-bs-auto-close="outside"
@@ -111,9 +101,7 @@
                                     @if($menu->menu_icon)
 
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
-
-                                        <i class="ti ti-{{ $menu->menu_icon }}"></i>
-
+                                        <i class="fs-3 {{ $menu->menu_icon }}"></i>
                                     </span>
 
                                     @endif
