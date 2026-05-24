@@ -377,6 +377,75 @@ class WorkTimeController extends Controller
         }
     }
 
+    public function getShiftAllowanceData(Request $request)
+    {
+        $data = DB::table('mst_shift_allowance as a')
+            ->leftJoin('mst_allowance_component as b', 'a.allowance_id', 'b.id')
+            ->leftJoin('mst_shift as c', 'a.shift_id', 'c.shift_id')
+            ->select('a.*', 'b.allowance_name', 'c.shift_name');
+
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('allowance_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+
+    public function CrudShiftAllowance(Request $request)
+    {
+        // 1. Validasi dilakukan di awal (sebelum Transaction)
+        // Supaya jika gagal, Laravel otomatis mengembalikan pesan error 422
+        $rules = [
+            'action'        => 'required|in:insert,update,delete,create',
+            'shift_id'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'start_date'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'amount'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // 2. Siapkan data (Hanya untuk insert & update)
+        $data = [
+            'shift_id' => $request->shift_id,
+            'allowance_id' => $request->allowance_id,
+            'amount' => $request->amount,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] =  auth()->id() ?? 'system';
+                    DB::table('mst_shift_allowance')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_shift_allowance')->where(['shift_id' => $request->shift_id, 'allowance_id' => $request->allowance_id])->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+
+                    DB::table('mst_shift_allowance')->where(['shift_id' => $request->shift_id, 'allowance_id' => $request->allowance_id])->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     // End Of Work time - Setting Shift 
 
     // Work time - Setting Overtime 

@@ -223,6 +223,10 @@ Route::middleware('auth')->group(function () {
         ->name('worktime.getShiftGroupData');
     Route::post('/worktime/worktime-shift-group-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShiftGroup'])
         ->name('worktime.CrudShiftGroup');
+    Route::get('/worktime/worktime-allowance-shift', [App\Http\Controllers\WorkTimeController::class, 'getShiftAllowanceData'])
+        ->name('worktime.getShiftAllowanceData');
+    Route::post('/worktime/worktime-allowance-shift-crud', [App\Http\Controllers\WorkTimeController::class, 'CrudShiftAllowance'])
+        ->name('worktime.CrudShiftAllowance');
 
     Route::get('/worktime/worktime-shift', [App\Http\Controllers\WorkTimeController::class, 'getShiftData'])
         ->name('worktime.getShiftData');

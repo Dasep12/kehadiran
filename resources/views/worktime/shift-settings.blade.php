@@ -29,6 +29,9 @@
                         <li class="nav-item" role="presentation">
                             <a href="#tabs-shift-pattern" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Shift Pattern</a>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="#tabs-shift-allowance" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Shift Allowance</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -41,6 +44,9 @@
                         </div>
                         <div class="tab-pane" id="tabs-shift-pattern" role="tabpanel">
                             @include('worktime.partials.shift-settings.grid-shift-pattern')
+                        </div>
+                        <div class="tab-pane" id="tabs-shift-allowance" role="tabpanel">
+                            @include('worktime.partials.shift-settings.grid-shift-allowance')
                         </div>
                     </div>
                 </div>
