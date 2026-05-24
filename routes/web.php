@@ -56,7 +56,6 @@ Route::middleware('auth')->group(function () {
     // Master Family
     // Route::get('/master/family', [App\Http\Controllers\CoreDataController::class, 'family'])->name('coredata.family');
     Route::get('/master/family-data', [App\Http\Controllers\CoreDataController::class, 'getFamilyData'])
-        ->middleware('permission:coredata.getFamilyData')
         ->name('coredata.getFamilyData');
 
     // Master Position Routes
@@ -106,7 +105,6 @@ Route::middleware('auth')->group(function () {
         ->name('coredata.CrudJobGrade');
 
     Route::get('/master/bank', [App\Http\Controllers\CoreDataController::class, 'getBankData'])
-        ->middleware('permission:coredata.getBankData')
         ->name('coredata.getBankData');
 
     // Master Sallary Component Routes
@@ -203,6 +201,8 @@ Route::middleware('auth')->group(function () {
         ->name('sallaryTax.CrudMembershipFees');
     Route::get('/master/membership-list', [App\Http\Controllers\SallaryTaxController::class, 'ListMemberhsipJson'])
         ->name('sallaryTax.ListMemberhsipJson');
+    Route::get('/master/membership-active', [App\Http\Controllers\SallaryTaxController::class, 'getMembershipActive'])
+        ->name('sallaryTax.getMembershipActive');
 
 
     // Worktime - Work Time
@@ -316,6 +316,10 @@ Route::middleware('auth')->group(function () {
         ->name('employees.CrudEmployee');
     Route::get('/employees/employees-salary-join-date', [App\Http\Controllers\EmployeeController::class, 'getSalaryByJoinDate'])
         ->name('employees.getSalaryByJoinDate');
+    Route::get('/employees/get-resign', [App\Http\Controllers\EmployeeController::class, 'getResignData'])
+        ->name('employees.getResignData');
+    Route::post('/employees/employees-crud-resign', [App\Http\Controllers\EmployeeController::class, 'CrudResign'])
+        ->name('employees.CrudResign');
 
     // Employee - Import Employee
     Route::get('/employees/import-employee', [App\Http\Controllers\EmployeeController::class, 'importEmployee'])
@@ -354,6 +358,8 @@ Route::middleware('auth')->group(function () {
         ->name('payroll.closePayroll');
     Route::get('/payroll/close-period-status', [App\Http\Controllers\PayrollController::class, 'checkPayrollStatus'])
         ->name('payroll.checkPayrollStatus');
+    Route::get('/payroll/get-employee-payroll', [App\Http\Controllers\PayrollController::class, 'getEmployeePayroll'])
+        ->name('payroll.getEmployeePayroll');
 
     // SETTINGS -
     Route::get('/settings/icons', [App\Http\Controllers\SettingsController::class, 'DataIcons'])->name('settings.icons');

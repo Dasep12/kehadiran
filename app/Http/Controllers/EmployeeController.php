@@ -31,6 +31,12 @@ class EmployeeController extends Controller
                     ->orWhere('employee_code', 'like', '%' . $request->search . '%');
             });
         }
+        if ($request->status !== null) {
+            if ($request->status !== "2") {
+                $data = $data->where('status', $request->status);
+            }
+        }
+
         return response()->json($data->get());
     }
 
@@ -182,6 +188,8 @@ class EmployeeController extends Controller
             'gender' => $request->gender,
             'id_card' => $request->id_card,
             'npwp' => $request->npwp,
+            'bpjs_jkn' => $request->bpjs_jkn,
+            'bpjs_tk' => $request->bpjs_tk,
             'created_by'    => auth()->id() ?? 'system',
             'updated_by'    => auth()->id() ?? 'system',
             'updated_at'    => now(),
@@ -220,6 +228,7 @@ class EmployeeController extends Controller
                 'education' => 'CrudEducation',
                 'overtime' => 'CrudOvertimeGroup',
                 'family' => 'CrudFamily',
+                'membership' => 'CrudMembership',
             ];
 
             foreach ($details as $key => $method) {
@@ -1099,6 +1108,94 @@ class EmployeeController extends Controller
         }
     }
 
+    private function CrudMembership(array $detail, string $employee_id)
+    {
+
+        foreach ($detail as $row) {
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['membership_id']) || empty($row['start_date'])) {
+                continue;
+            }
+
+            $data = [
+                'employee_id'   => $employee_id,
+                'membership_id'   => $row['membership_id'],
+                'start_date'   => $row['start_date'],
+                'end_date'   => $row['end_date'],
+                'is_active'   => 1,
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+
+                    $last = DB::table('mst_employee_membership')
+                        ->where('employee_id',   $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_membership')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('membership_id', $last->membership_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
+                                'updated_at' => now(),
+                            ]);
+                    }
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_employee_membership')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_membership')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('membership_id',   $row['membership_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_employee_membership')
+                        ->where('employee_id',   $row['employee_id'])
+                        ->where('membership_id',   $row['membership_id'])
+                        ->where('start_date',   $row['start_date'])
+                        ->delete();
+
+                    $last = DB::table('mst_employee_membership')
+                        ->where('employee_id', $employee_id)
+                        ->orderByDesc('start_date')
+                        ->first();
+
+                    if ($last) {
+                        DB::table('mst_employee_membership')
+                            ->where('employee_id', $last->employee_id)
+                            ->where('membership_id', $last->membership_id)
+                            ->where('start_date', $last->start_date)
+                            ->update([
+                                'end_date'   => null,
+                            ]);
+                    }
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+
     public function importEmployee()
     {
         $data = [
@@ -1472,5 +1569,73 @@ class EmployeeController extends Controller
             'id'      => $data->$idColumn,
             'data'    => $data
         ];
+    }
+
+
+    public function getResignData(Request $request)
+    {
+        $data = DB::table('mst_resign')->select('*')->get();
+        return response()->json($data);
+    }
+
+    public function CrudResign(Request $request)
+    {
+        // 1. Validasi dilakukan di awal (sebelum Transaction)
+        // Supaya jika gagal, Laravel otomatis mengembalikan pesan error 422
+        $rules = [
+            'action'        => 'required|in:insert,update,delete,create',
+            'resign_id'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'remark'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'resign_date'    => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+        $message = '';
+
+        $request->validate($rules);
+
+        // 2. Siapkan data (Hanya untuk insert & update)
+        $data = [
+            'employee_id' => $request->employee_id_resign,
+            'resign_id' => $request->resign_id,
+            'resign_date' => $request->resign_date,
+            'remark' => $request->remark,
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_employee_resign')->insert($data);
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_employee_resign')->where([
+                        'employee_id' => $request->employee_id_resign,
+                        'resign_date' => $request->resign_date
+                    ])->update($data);
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+
+                    DB::table('mst_employee_resign')->where(
+                        [
+                            'employee_id' => $request->employee_id_resign,
+                            'resign_date' => $request->resign_date
+                        ]
+                    )->delete();
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 }

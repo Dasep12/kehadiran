@@ -51,6 +51,16 @@
             <input type="text" id="npwp" name="npwp" placeholder="00.000.000.0-000.000" class="form-control">
         </div>
 
+        <div>
+            <label class="form-label">BPJS Tenaga Kerja <span class="text-danger">*</span></label>
+            <input type="text" id="bpjs_tk" name="bpjs_tk" placeholder="Enter 16 digit NIK" class="form-control" required>
+        </div>
+
+        <div>
+            <label class="form-label">BPJS Kesehatan </label>
+            <input type="text" id="bpjs_jkn" name="bpjs_jkn" placeholder="00.000.000.0-000.000" class="form-control">
+        </div>
+
 
         <div>
             <label class="form-label">Employee Photo</label>

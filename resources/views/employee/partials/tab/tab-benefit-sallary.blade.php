@@ -192,15 +192,18 @@
             visible: false
         }, {
             title: "Name",
-            field: "allowance_name"
+            field: "allowance_name",
+            width: 200
         },
         {
             title: "Code",
             field: "membership_code",
+            visible: false,
         },
         {
             title: "Calc Type",
             field: "calculation_type",
+            width: 130
         },
         {
             title: "Rate",
@@ -210,19 +213,22 @@
                 var data = cell.getData();
                 var rate = Number(data.rate_value) || 0;
                 return parseFloat(rate.toFixed(1));
-            }
+            },
+            width: 130
         },
         {
             title: "Emp Share",
             field: "employee_share",
             hozAlign: "center",
             formatter: "tickCross",
+            width: 140
         },
         {
             title: "Comp Share",
             field: "company_share",
             hozAlign: "center",
             formatter: "tickCross",
+            width: 140
         },
         {
             title: "Start Date",
@@ -233,7 +239,8 @@
                 outputFormat: "dd MMM yyyy", // tampilan yang diinginkan
                 invalidPlaceholder: "-"
             },
-            hozAlign: "center"
+            hozAlign: "center",
+            width: 190
         }, {
             title: "End Date",
             field: "end_date",
@@ -243,7 +250,8 @@
                 outputFormat: "dd MMM yyyy", // tampilan yang diinginkan
                 invalidPlaceholder: "-"
             },
-            hozAlign: "center"
+            hozAlign: "center",
+            width: 190
         },
     ];
 
@@ -304,11 +312,11 @@
     function actionFormatterDetailMembership(cell) {
         var rowData = cell.getRow().getData();
 
-        var working_id = rowData.working_id;
+        var membership_id = rowData.membership_id;
         var start_date = rowData.start_date;
-        var id = working_id + '__' + start_date;
+        var id = membership_id + '__' + start_date;
         return `<button type="button" 
-            onclick="CrudWorkStatus('update', '${id}')" 
+            onclick="CrudMembership('update', '${id}')" 
             class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" 
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -317,7 +325,7 @@
             </svg>
         </button>
         <button type="button" 
-            onclick="CrudWorkStatus('delete','${id}')" 
+            onclick="CrudMembership('delete','${id}')" 
             class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" 
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -344,7 +352,8 @@
         });
         tableMembership = initTable("#table-membership", "{{ route('employees.getDetailEmployee') }}", colsMembership, {
             employee_id: $("#employee_id").val(),
-            nameData: "membership"
+            nameData: "membership",
+            layout: "fitData"
         });
         // Dan seterusnya...
     });

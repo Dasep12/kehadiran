@@ -89,6 +89,15 @@ class AttendanceController extends Controller
                             ]);
                     }
                     DB::table('trn_employee_shift_group')->insert($data);
+                    DB::statement("CALL sp_generate_group_shift_schedule(?, ?, ?)", [
+                        $request->shift_group_id,
+                        $request->start_date,
+                        $request->end_date ?? Carbon::now()->endOfYear()->toDateString()
+                    ]);
+                    DB::statement("CALL sp_generate_employee_shift_schedule(?, ?)", [
+                        $request->start_date,
+                        $request->end_date ?? Carbon::now()->endOfYear()->toDateString()
+                    ]);
                     $message = 'Data berhasil ditambahkan';
                     break;
 
@@ -113,11 +122,23 @@ class AttendanceController extends Controller
                             ->update([
                                 'end_date'   => null,
                             ]);
+
+                        DB::statement("CALL sp_generate_group_shift_schedule(?, ?, ?)", [
+                            $last->shift_group_id,
+                            $request->start_date,
+                            $request->end_date
+                        ]);
+                        DB::statement("CALL sp_generate_employee_shift_schedule(?, ?)", [
+                            $request->start_date,
+                            $request->end_date
+                        ]);
                     }
 
                     $message = 'Data berhasil dihapus';
                     break;
             }
+
+
 
             DB::commit();
             return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);

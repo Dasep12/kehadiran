@@ -40,6 +40,12 @@
                                         </svg>
                                     </span>
                                     <input placeholder="Search Here..." id="search-input" type="text" class="form-control" autocomplete="off">
+
+                                    <select name="" onchange="reloadTable()" class="form-control" id="status_employee_filter">
+                                        <option value="2">ALL</option>
+                                        <option selected value="1">ACTIVE</option>
+                                        <option value="0">RESIGN</option>
+                                    </select>
                                 </div>
                                 <button type="button" onclick="reloadTable()" class="btn btn-icon" aria-label="Button">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pointer-search">
@@ -95,6 +101,12 @@
         paginationSize: 10,
         index: "employee_id",
         paginationSizeSelector: [10, 25, 50, 100],
+        placeholder: "No Employee Data",
+        // 🔥 ajax param (filter support)
+        ajaxParams: {
+            search: "",
+            status: $("#status_employee_filter").val()
+        },
         columns: [{
                 title: "ID",
                 field: "employee_id",
@@ -149,6 +161,34 @@
                 field: "grade_name",
             },
             {
+                title: "resign_id",
+                field: "resign_id",
+                visible: false
+            },
+            {
+                title: "reasons_resign",
+                field: "reasons_resign",
+                visible: false
+            },
+            {
+                title: "bpjs_jkn",
+                field: "bpjs_jkn",
+                visible: false
+            },
+            {
+                title: "bpjs_tk",
+                field: "bpjs_tk",
+                visible: false
+            },
+            {
+                title: "resign_date",
+                field: "resign_date",
+            },
+            {
+                title: "photo_path",
+                field: "photo_path",
+            },
+            {
                 title: "Join Date",
                 field: "join_date",
                 formatter: "datetime",
@@ -172,7 +212,7 @@
             }, {
                 title: "Action",
                 formatter: actionFormatter,
-                width: 100,
+                width: 150,
                 hozAlign: "center",
                 frozen: true
             }
@@ -180,21 +220,44 @@
     });
 
     function actionFormatter(cell) {
+        var resign_date = cell.getRow().getData().resign_date;
+        console.log(resign_date);
+        var actionResign = resign_date == null ? 'create' : 'delete';
         let clickEdit = canEdit == true ? `onclick="Crud('update', '${cell.getRow().getData().employee_id}')"` : '';
         let clickDelete = `onclick="Crud('delete', '${cell.getRow().getData().employee_id}')"`;
+        let clickResign = `onclick="CrudEmployeeResign('${actionResign}', '${cell.getRow().getData().employee_id}')"`;
         let disabledEdit = canEdit == true ? "" : "disabled";
         let disabledDelete = canDelete == true ? "" : "disabled";
-        return `<button type="button" ${disabledEdit} ${clickEdit} class="btn btn-sm btn-outline-primary me-1">
+        let disabledResign = canEdit == true ? "" : "disabled";
+
+        if (resign_date != null) {
+            disabledDelete = "disabled";
+            disabledEdit = "disabled";
+            clickEdit = '';
+            clickDelete = '';
+        }
+
+        return `<button data-bs-toggle="tooltip"  title="Edit" type="button" ${disabledEdit} ${clickEdit} class="btn btn-sm btn-outline-primary me-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
             </svg>
         </button>
-        <button type="button" ${disabledDelete} ${clickDelete} class="btn btn-sm btn-outline-danger">
+        <button title="Delete" type="button" ${disabledDelete} ${clickDelete} class="btn btn-sm btn-outline-danger">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
+        </button>
+        <button title="Resign" type="button" ${disabledResign} ${clickResign} class="btn btn-sm btn-outline-warning ms-1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-off">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M9 5h9a2 2 0 0 1 2 2v9m-.184 3.839a2 2 0 0 1 -1.816 1.161h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 1.158 -1.815" />
+                    <path d="M16 3v4" />
+                    <path d="M8 3v1" />
+                    <path d="M4 11h7m4 0h5" />
+                    <path d="M3 3l18 18" />
+        </svg>
         </button>
         `;
     }
@@ -203,7 +266,8 @@
         const search = document.getElementById("search-input").value;
 
         table.setData("{{ route('employees.getDataEmployee') }}", {
-            search: search
+            search: search,
+            status: $("#status_employee_filter").val()
         });
     }
 
@@ -268,4 +332,5 @@
 
 
 @include("employee.partials.crud-employee")
+@include("employee.partials.crud-resign-employee")
 @endsection

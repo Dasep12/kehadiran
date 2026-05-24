@@ -29,7 +29,7 @@
                             <label class="form-label"> End Date </label>
                             <input type="text" id="end_date_basic_salary" placeholder="Enter End Date" class="form-control date_picker">
 
-                            <input type="text" name="crud-action-basic-salary" id="crud-action-basic-salary">
+                            <input type="text" hidden name="crud-action-basic-salary" id="crud-action-basic-salary">
                         </div>
                     </div>
                 </div>

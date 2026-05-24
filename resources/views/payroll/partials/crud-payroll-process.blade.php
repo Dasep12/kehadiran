@@ -9,7 +9,7 @@
                 <div class="modal-body">
                     <div class="col-md-auto col-sm-12 mb-3 d-flex flex-wrap gap-3 align-items-center justify-content-between">
                         <div class="d-flex  gap-3 justify-content-center">
-                            <select name="company_id" id="company_process_id" class="form-control mb-2 w-100">
+                            <select name="company_id" id="company_process_id" class="form-control mb-2 w-100 d-none">
                                 <option value="">Select Company</option>
                                 <!-- Options will be populated dynamically -->
                             </select>
@@ -91,7 +91,7 @@
     });
 
     var tableEmployeePayroll = new Tabulator("#employee-payroll-table", {
-        ajaxURL: "{{ route('employees.getDataEmployee') }}", // endpoint Laravel
+        ajaxURL: "{{ route('payroll.getEmployeePayroll') }}", // endpoint Laravel
         ajaxConfig: "GET",
         // 🔥 layout fix (penting)
         layout: "fitData",

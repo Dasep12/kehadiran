@@ -230,4 +230,10 @@ class PayrollController extends Controller
             'is_closed' => $status
         ]);
     }
+
+    public function getEmployeePayroll(Request $request)
+    {
+        $data = DB::table('vw_employee');
+        return response()->json($data->get());
+    }
 }

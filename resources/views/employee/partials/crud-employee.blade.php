@@ -15,8 +15,8 @@
                             <span class="avatar avatar-xl rounded-circle" style="background-image: url(https://i.pravatar.cc/150?u=hector)"></span>
                         </div>
                         <div class="col">
-                            <h2 class="mb-0">Hector Mariano</h2>
-                            <div class="text-muted">bancboy@me.com</div>
+                            <h2 class="mb-0 name-profile">-</h2>
+                            <div class="text-muted email-profile">-</div>
                         </div>
                         <!-- <div class="col-12 col-md-auto mt-3 mt-md-0">
                         <div class="row g-3">
@@ -83,7 +83,7 @@
                             @include("employee.partials.tab.tab-others")
                         </div>
                     </div>
-                    <input type="text" id="CrudEmployee-action">
+                    <input type="text" hidden id="CrudEmployee-action">
 
                     <div id="CrudEmployee-ErrorInfo"></div>
                 </div>
@@ -107,6 +107,7 @@
 @include("employee.partials.tab.tab-crud.crud-education")
 @include("employee.partials.tab.tab-crud.crud-overtime-group")
 @include("employee.partials.tab.tab-crud.crud-family")
+@include("employee.partials.tab.tab-crud.crud-membership")
 @push('scripts')
 <script>
     function loadPosition() {
@@ -258,7 +259,6 @@
             url: '{{ route("worktime.getOvertimeGroupData") }}',
             method: 'GET',
             success: function(response) {
-                console.log(response);
                 let options = '<option value="">Select Overtime Group</option>';
                 response.forEach(function(overtimeGroup) {
                     options += `<option data-name="${overtimeGroup.group_name}" value="${overtimeGroup.id}">${overtimeGroup.group_name}</option>`;
@@ -276,12 +276,37 @@
             url: '{{ route("coredata.getFamilyData") }}',
             method: 'GET',
             success: function(response) {
-                console.log(response);
                 let options = '<option value="">Select Family</option>';
                 response.forEach(function(family) {
-                    options += `<option data-name="${family.relation_name}" value="${family.id}">${family.relation_name}</option>`;
+                    options += `<option  data-name="${family.relation_name}" value="${family.id}">${family.relation_name}</option>`;
                 });
                 $('#family_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error fetching family data:', xhr);
+            }
+        });
+    }
+
+    function loadMembership() {
+        $.ajax({
+            url: '{{ route("sallaryTax.getMembershipActive") }}',
+            method: 'GET',
+            success: function(response) {
+                let options = '<option value="">Select Membership</option>';
+                response.forEach(function(membership) {
+                    options += `<option 
+                    data-calculation_type="${membership.calculation_type}" 
+                    data-allowance_name="${membership.allowance_name}" 
+                    data-membership_code="${membership.membership_code}" 
+                    data-rate_value="${membership.rate_value}" 
+                    data-employee_share="${membership.employee_share}" 
+                    data-company_share="${membership.company_share}" 
+                    data-calculation_type="${membership.calculation_type}" 
+                    data-calc_for="${membership.calc_for}" 
+                    value="${membership.membership_id}">${membership.allowance_name}</option>`;
+                });
+                $('#membership_id').html(options);
             },
             error: function(xhr) {
                 console.error('Error fetching family data:', xhr);
@@ -294,12 +319,13 @@
     loadWorkStatus()
     loadGrade()
     loadAllowance()
-    loadBasicSalary()
+    // loadBasicSalary()
     loadBank()
     loadPTKP()
     loadEducation()
     loadOvertimeGroup()
     loadFamily()
+    loadMembership()
 
     function Crud(action, id) {
         document.getElementById('form-crud-employee').reset();
@@ -316,6 +342,11 @@
             $('#join_date').val(data.join_date);
             $('#npwp').val(data.npwp);
             $('#id_card').val(data.id_card);
+            $('#bpjs_jkn').val(data.bpjs_jkn);
+            $('#bpjs_tk').val(data.bpjs_tk);
+
+            $(".name-profile").html(data.employee_name)
+            $(".email-profile").html(data.email)
         }
 
         loadBasicSalary();
@@ -365,6 +396,8 @@
             gender: $('#gender').val(),
             id_card: $('#id_card').val(),
             npwp: $('#npwp').val(),
+            bpjs_tk: $('#bpjs_tk').val(),
+            bpjs_jkn: $('#bpjs_jkn').val(),
             action: action,
             organization: JSON.stringify(tableOrganization.getData()),
             position: JSON.stringify(tablePosition.getData()),
@@ -376,15 +409,14 @@
             education: JSON.stringify(tableEducation.getData()),
             overtime: JSON.stringify(tableOvertime.getData()),
             family: JSON.stringify(tableFamily.getData()),
+            membership: JSON.stringify(tableMembership.getData()),
             _token: '{{ csrf_token() }}'
         };
-        console.log(formData);
         $.ajax({
             url: url,
             method: method,
             data: formData,
             success: function(response) {
-                console.log(response);
                 if (response.success) {
                     showAlert(response.message, response.status);
                     $("#modal-full-width").modal('hide');

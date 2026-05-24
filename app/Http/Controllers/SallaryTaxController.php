@@ -912,6 +912,13 @@ class SallaryTaxController extends Controller
         return response()->json($data);
     }
 
+    public function getMembershipActive(Request $request)
+    {
+        $data = DB::table('vw_membership_rate_active')
+            ->select('*')->get();
+        return response()->json($data);
+    }
+
     public function CrudMembershipFees(Request $request)
     {
         // Validasi
