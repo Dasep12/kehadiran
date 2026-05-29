@@ -15,6 +15,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect('/dashboard');
         }
+        // dd(Hash::make(123456));
         return view('auth.login');
     }
 

@@ -92,7 +92,6 @@ Route::middleware('auth')->group(function () {
 
     // Master Company Routes
     Route::get('/master/company-data', [App\Http\Controllers\CoreDataController::class, 'getCompanyData'])
-        ->middleware('permission:coredata.getCompanyData')
         ->name('coredata.getCompanyData');
 
     // Master Job Grade Routes
