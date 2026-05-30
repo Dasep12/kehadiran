@@ -43,6 +43,42 @@ class EssAttendanceController extends Controller
         }
     }
 
+    public function MonthlyAttendance(Request $request)
+    {
+        try {
+            // 1. Ambil range dari request, jika tidak ada, default ke bulan ini
+            $startDate = date($request->year . '-' . $request->month . '-01');
+            $endDate = date($request->year . '-' . $request->month . '-t');
+
+            $data = DB::table('vw_attendance_employee')
+                ->where('employee_id', $request->user()->id)
+                // 2. Gunakan whereBetween untuk range tanggal
+                ->whereBetween('work_date', [$startDate, $endDate])
+                ->select(
+                    'employee_id',
+                    'employee_name',
+                    'work_date',
+                    'shift_name',
+                    'check_in',
+                    'check_out',
+                    'attendance_status'
+                )
+                ->orderBy('work_date', 'asc') // Opsional: urutkan berdasarkan tanggal
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => $ex->getMessage()
+            ]);
+        }
+    }
+
     public function submitAbsence(Request $request)
     {
         $timeIN = $request->time_in;

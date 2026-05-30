@@ -267,7 +267,7 @@ class EmployeeController extends Controller
                 'employee_id'   => $employee_id,
                 'organization_id'   => $row['organization_id'],
                 'start_date'   => $row['start_date'],
-                'end_date'   => $row['end_date'],
+                'end_date'   => $row['end_date'] ?? null,
                 'updated_by' => auth()->id() ?? 'system',
                 'updated_at' => now(),
             ];
@@ -283,21 +283,22 @@ class EmployeeController extends Controller
                         ->first();
 
                     if ($last) {
-                        DB::table('mst_employee_organization')
-                            ->where('employee_id', $last->employee_id)
-                            ->where('organization_id', $last->organization_id)
-                            ->where('start_date', $last->start_date)
-                            ->update([
-                                'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
-                                'updated_at' => now(),
-                            ]);
+                        // DB::table('mst_employee_organization')
+                        //     ->where('employee_id', $last->employee_id)
+                        //     ->where('organization_id', $last->organization_id)
+                        //     ->where('start_date', $last->start_date)
+                        //     ->update([
+                        //         'end_date'   => date('Y-m-d', strtotime($data['start_date'] . ' -1 day')),
+                        //         'updated_at' => now(),
+                        //     ]);
                     }
+                    // dd($data);
                     // 🔥 Hindari duplicate insert
                     DB::table('mst_employee_organization')
                         ->insertOrIgnore($data);
                     break;
-
                 case 'update':
+                    // dd($data);
                     DB::table('mst_employee_organization')
                         ->where('employee_id',   $row['employee_id'])
                         ->where('organization_id',   $row['organization_id'])

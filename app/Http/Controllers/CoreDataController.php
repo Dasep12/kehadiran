@@ -523,19 +523,31 @@ class CoreDataController extends Controller
         return response()->json($tree);
     }
 
+    public function getLevelOrganization(Request $request)
+    {
+        $data = DB::table('mst_level_organization')
+            ->select('*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('level', 'asc')->get();
+        return response()->json($data);
+    }
+
     public function getTreeOrganizationDetail(Request $request)
     {
         switch ($request->action) {
 
             case 'getParent':
-                $data = DB::table('mst_organization')
+                $data = DB::table('vw_organization_tree')
                     ->select('*')
                     ->where('level', $request->level)
                     ->get();
                 break;
 
             default:
-                $data = DB::table('mst_organization')
+                $data = DB::table('vw_organization_tree')
                     ->select('*')
                     ->where('organization_id', $request->id)
                     ->first();
@@ -572,7 +584,7 @@ class CoreDataController extends Controller
         $rules = [
             'action'        => 'required|in:insert,update,delete,create',
             'organization_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
-            'level'         => $request->action != 'delete' ? 'required|integer' : 'nullable',
+            'level_id'         => $request->action != 'delete' ? 'required|integer' : 'nullable',
             'parent_id'     => 'nullable|exists:mst_organization,organization_id',
             'company_id'     => 'nullable|exists:mst_company,company_id',
         ];
@@ -582,7 +594,7 @@ class CoreDataController extends Controller
         // 2. Siapkan data (Hanya untuk insert & update)
         $data = [
             'organization_name' => $request->organization_name,
-            'level'         => $request->level,
+            'level_id'         => $request->level_id,
             'sort'         => $request->sort,
             'initial'         => $request->initial,
             'parent_id'     => $request->parent_id,
@@ -761,4 +773,160 @@ class CoreDataController extends Controller
         return response()->json($data);
     }
     // End of master family
+
+
+    // Route Work Approval
+    public function WorkflowApproval()
+    {
+        $data = [
+            'title' => 'Overtime',
+            'canCreate' => has_permission('coredata.WorkflowApproval', 'create'),
+            'canEdit' => has_permission('coredata.WorkflowApproval', 'edit'),
+            'canDelete' => has_permission('coredata.WorkflowApproval', 'delete'),
+        ];
+        return view('coredata.workflow-approval', $data);
+    }
+
+    public function getWorkflowApproval(Request $request)
+    {
+        $data = DB::table('mst_approval_workflow')
+            ->select('*');
+
+        if ($request->has('search') && !empty($request->search)) {
+            $data = $data->where('workflow_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $data->orderBy('created_at', 'desc')->get();
+        return response()->json($data);
+    }
+
+    public function getWorkflowApprovalDetail(Request $request)
+    {
+        $data = DB::table('vw_work_flow_approval_detail')
+            ->select('*');
+
+        // if ($request->has('workflow_id') && !empty($request->workflow_id)) {
+        $data = $data->where('workflow_id', $request->workflow_id);
+        // }
+        $data = $data->orderBy('step_level', 'asc')->get();
+        return response()->json($data);
+    }
+
+    public function CrudWorkflowApproval(Request $request)
+    {
+        // Validasi
+        $rules = [
+            'action' => 'required|in:insert,update,delete,create',
+            'workflow_name' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+            'module_type' => $request->action != 'delete' ? 'required|string|max:255' : 'nullable',
+        ];
+
+        $request->validate($rules);
+
+        // Siapkan data untuk insert/update
+        $data = [
+            'module_type' => $request->module_type,
+            'workflow_name' => $request->workflow_name,
+            'is_active' => $request->is_active,
+            'created_by'    => auth()->id() ?? 'system',
+            'updated_by'    => auth()->id() ?? 'system',
+            'updated_at'    => now(),
+        ];
+
+
+        DB::beginTransaction();
+        try {
+            switch ($request->action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    DB::table('mst_approval_workflow')->insert($data);
+
+                    $last_id = DB::getPdo()->lastInsertId();
+                    $message = 'Data berhasil ditambahkan';
+                    break;
+
+                case 'update':
+                    DB::table('mst_approval_workflow')->where('id', $request->id)->update($data);
+                    $last_id = $request->id;
+                    $message = 'Data berhasil diupdate';
+                    break;
+
+                case 'delete':
+                    DB::table('mst_approval_workflow')->where('id', $request->id)->delete();
+                    $last_id = $request->id;
+                    $message = 'Data berhasil dihapus';
+                    break;
+            }
+
+            // 🔥 Decode jika detail dikirim sebagai JSON string
+            $detail = $request->detail;
+            if (is_string($detail)) {
+                $detail = json_decode($detail, true);
+            }
+
+            // 🔥 Proses detail hanya jika ada data
+            if (!empty($detail) && is_array($detail)) {
+                self::CrudWorkflowApprovalDetail($detail, $last_id);
+            }
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => $message, 'success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    private function CrudWorkflowApprovalDetail(array $detail, $workflow_id)
+    {
+        foreach ($detail as $row) {  // 🔥 Pakai foreach, hindari off-by-one
+
+            // 🔥 Skip jika action null/kosong (row tidak diubah)
+            $action = $row['action'] ?? null;
+            if (empty($action)) {
+                continue;
+            }
+
+            // 🔥 Validasi field wajib sebelum proses
+            if (empty($row['step_level']) || empty($row['approver_type'])) {
+                continue;
+            }
+
+            $data = [
+                'workflow_id'   => $workflow_id,
+                'step_level'   => $row['step_level'],
+                'approver_type'   => $row['approver_type'],
+                'target_employee_id'   => $row['target_employee_id'],
+                'target_position_id'   => $row['target_position_id'],
+                'target_organization_id'   => $row['target_organization_id'],
+                'updated_by' => auth()->id() ?? 'system',
+                'updated_at' => now(),
+            ];
+
+            switch ($action) {
+                case 'create':
+                    $data['created_at'] = now();
+                    $data['created_by'] = auth()->id() ?? 'system';
+                    // 🔥 Hindari duplicate insert
+                    DB::table('mst_approval_workflow_step')
+                        ->insertOrIgnore($data);
+                    break;
+
+                case 'update':
+                    DB::table('mst_approval_workflow_step')
+                        ->where('id',   $row['id'])
+                        ->update($data);
+                    break;
+
+                case 'delete':
+                    DB::table('mst_approval_workflow_step')
+                        ->where('id',   $row['id'])
+                        ->delete();
+                    break;
+
+                default:
+                    // action tidak dikenal, skip
+                    break;
+            }
+        }
+    }
+    // End of Route Work Approval
 }

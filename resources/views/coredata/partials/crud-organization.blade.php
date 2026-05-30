@@ -22,9 +22,11 @@
                 </div>
 
                 <div class="mb-3 row">
-                    <label class="col-3 col-form-label required">Level</label>
+                    <label class="col-3 col-form-label required">Level Organization</label>
                     <div class="col">
-                        <input type="number" name="level" id="level" class="form-control" aria-describedby="levelHelp" placeholder="Enter level">
+                        <select name="level_id" id="level_id" class="form-control" aria-describedby="parentHelp" placeholder="Enter parent organization">
+                            <option value="">Select Level</option>
+                        </select>
                     </div>
                 </div>
 
@@ -163,6 +165,29 @@
     }
     loadCompany();
 
+
+    function loadLevelOrganization() {
+        // Return promise agar bisa di-await
+        $.ajax({
+            url: '{{ route("coredata.getLevelOrganization") }}',
+            method: 'GET',
+            data: {}
+        }).done(function(response) {
+            let $parentSelect = $('#level_id');
+            $parentSelect.empty().append('<option value="">Select Level</option>');
+
+            if (response && response.length > 0) {
+                response.forEach(function(level) {
+                    $parentSelect.append(`<option data-level="${level.level}" value="${level.id}">${ '['+ level.level + '] ' +level.name}</option>`);
+                });
+            }
+        }).fail(function(xhr) {
+            console.error('Error fetching parent positions:', xhr);
+        });
+    }
+
+    loadLevelOrganization();
+
     async function loadOrganizationDetail(id) {
         try {
             const response = await $.ajax({
@@ -177,7 +202,7 @@
             $('#company_id').val(response.company_id);
             $('#organization_id').val(response.organization_id);
             $('#organization_name').val(response.organization_name);
-            $('#level').val(response.level);
+            $('#level_id').val(response.level_id);
             $('#sort').val(response.sort);
             $('#initial').val(response.initial);
 
@@ -194,9 +219,13 @@
         }
     }
 
-    $('#level').on('change', function() {
+
+
+    $('#level_id').on('change', function() {
         var level = $(this).val();
-        loadOrganizationParent(level);
+        var dataLevel = $(this).find(':selected').data('level');
+        console.log(dataLevel)
+        loadOrganizationParent(dataLevel);
     });
 
     function loadOrganizationParent(level) {
@@ -232,7 +261,7 @@
         let formData = {
             organization_id: $('#organization_id').val(),
             organization_name: $('#organization_name').val(),
-            level: $('#level').val(),
+            level_id: $('#level_id').val(),
             parent_id: $('#parent_id').val(),
             company_id: $('#company_id').val(),
             initial: $('#initial').val(),

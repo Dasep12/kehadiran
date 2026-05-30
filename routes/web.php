@@ -79,6 +79,8 @@ Route::middleware('auth')->group(function () {
         ->name('coredata.organization');
     Route::get('/coredata/organizationTree', [App\Http\Controllers\CoreDataController::class, 'getTreeOrganization'])
         ->name('coredata.organizationTree');
+    Route::get('/coredata/organizationLevel', [App\Http\Controllers\CoreDataController::class, 'getLevelOrganization'])
+        ->name('coredata.getLevelOrganization');
     Route::get('/master/organization-employee', [App\Http\Controllers\CoreDataController::class, 'getOrganizationEmployee'])
         ->name('coredata.getOrganizationEmployee');
     Route::get('/coredata/organizationTree', [App\Http\Controllers\CoreDataController::class, 'getTreeOrganization'])
@@ -202,6 +204,18 @@ Route::middleware('auth')->group(function () {
         ->name('sallaryTax.ListMemberhsipJson');
     Route::get('/master/membership-active', [App\Http\Controllers\SallaryTaxController::class, 'getMembershipActive'])
         ->name('sallaryTax.getMembershipActive');
+
+    // Coredata - Workflow Approval
+    Route::get('/coredata/workflow-approval', [App\Http\Controllers\CoreDataController::class, 'WorkflowApproval'])
+        ->middleware('permission:coredata.WorkflowApproval')
+        ->name('coredata.WorkflowApproval');
+    Route::get('/coredata/workflow-approval-data', [App\Http\Controllers\CoreDataController::class, 'getWorkflowApproval'])
+        ->name('coredata.getWorkflowApproval');
+    Route::get('/coredata/workflow-approval-detail', [App\Http\Controllers\CoreDataController::class, 'getWorkflowApprovalDetail'])
+        ->name('coredata.getWorkflowApprovalDetail');
+    Route::post('/coredata/workflow-approval-crud', [App\Http\Controllers\CoreDataController::class, 'CrudWorkflowApproval'])
+        ->name('coredata.CrudWorkflowApproval');
+
 
 
     // Worktime - Work Time

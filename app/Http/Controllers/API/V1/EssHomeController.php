@@ -32,4 +32,13 @@ class EssHomeController extends Controller
             'data' => $data
         ]);
     }
+
+    public function getWorkCalendar(Request $request)
+    {
+        $data = DB::table('mst_holiday')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
 }

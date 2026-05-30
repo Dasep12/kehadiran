@@ -38,10 +38,12 @@ Route::prefix('v1')->group(function () {
         // HOME 
         Route::get('/schedule-today', [EssHomeController::class, 'scheduleToday']);
         Route::get('/announcement', [EssHomeController::class, 'getAnnouncement']);
+        Route::get('/work-calendar', [EssHomeController::class, 'getWorkCalendar']);
 
 
         // ATTENDANCE 
         Route::get('/history-attendance', [EssAttendanceController::class, 'historyAttendance']);
+        Route::get('/history-attendance-monthly', [EssAttendanceController::class, 'MonthlyAttendance']);
         Route::post('/submit-absence', [EssAttendanceController::class, 'submitAbsence']);
         Route::get('/location-absence', [EssAttendanceController::class, 'locationAbsenPoint']);
         Route::post('/faceEmbeding', [EssAttendanceController::class, 'faceEmbeding']);
