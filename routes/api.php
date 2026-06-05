@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\V1\ESSAuthController;
 use App\Http\Controllers\API\V1\EssHomeController;
+use App\Http\Controllers\API\V1\EssProposedController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,5 +49,16 @@ Route::prefix('v1')->group(function () {
         Route::get('/location-absence', [EssAttendanceController::class, 'locationAbsenPoint']);
         Route::post('/faceEmbeding', [EssAttendanceController::class, 'faceEmbeding']);
         Route::get('/get-faceEmbeding', [EssAttendanceController::class, 'getFaceEmbeding']);
+
+
+        // PROPOSED
+        Route::post('/proposed-overtime', [EssProposedController::class, 'proposedOvertime']);
+        Route::post('/proposed-overtime-check-schedule', [EssProposedController::class, 'checkScheduleWork']);
+
+        Route::get('/proposed-list-permit', [EssProposedController::class, 'listPermitLeave']);
+        Route::post('/proposed-permit', [EssProposedController::class, 'proposedPermit']);
+        Route::post('/proposed-leave', [EssProposedController::class, 'proposedLeave']);
+        Route::get('/proposed-list', [EssProposedController::class, 'listProposed']);
+        Route::get('/proposed-list-approval-detail', [EssProposedController::class, 'listProposedApprovalDetail']);
     });
 });
